@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>醉加損友 - 遊戲介面</title>
+    <style>
+        /* --- 全局設定 --- */
+        :root {
+            --bg-color: #0f0c29;
+            --text-gradient: linear-gradient(to right, #ff6b6b, #ffcc33);
+            --border-gradient: linear-gradient(to bottom, #00f260, #0575e6);
+            --card-bg: #141414;
+            --neon-blue: #00f2fe;
+            --neon-pink: #ff0055;
+            --neon-yellow: #ffe600;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', sans-serif;
+            user-select: none; /* 防止連點選取文字 */
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- 通用按鈕樣式 --- */
+        .neon-btn {
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-blue);
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+        .neon-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--neon-blue); }
+        .neon-btn:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; }
+
+        /* --- 第一頁：首頁 --- */
+        .page-home { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .main-title {
+            font-size: 5rem; font-weight: 900;
+            background: var(--text-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 20px rgba(255, 107, 107, 0.3);
+        }
+        .sub-title {
+            font-size: 3rem; margin-bottom: 40px;
+            background: var(--text-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .wine-image { width: 250px; animation: float 3s ease-in-out infinite; margin-top: 20px; }
+
+        /* --- 第二頁：選擇模式 --- */
+        .page-mode { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .mode-header { font-size: 3rem; margin-bottom: 40px; font-weight: bold; }
+        .cards-wrapper { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+        .mode-card {
+            width: 300px; height: 300px; background: var(--card-bg); border-radius: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; position: relative; padding: 5px; transition: transform 0.3s;
+        }
+        .mode-card::before {
+            content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 3px;
+            background: var(--border-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+        }
+        .mode-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 242, 96, 0.2); }
+        .card-title { font-size: 2rem; font-weight: bold; margin-bottom: 15px; }
+        .card-desc { color: #ccc; }
+
+        /* --- 第三頁：轉盤設定 --- */
+        .page-family {
+            display: flex; flex-direction: column; align-items: center; width: 100%;
+            height: 100%; justify-content: flex-start; padding-top: 50px;
+        }
+        .input-section { margin-bottom: 30px; display: flex; gap: 10px; align-items: center; }
+        .input-box {
+            background: rgba(255,255,255,0.1); border: 2px solid var(--neon-blue);
+            color: white; padding: 10px 20px; font-size: 1.5rem; border-radius: 10px;
+            width: 150px; text-align: center; outline: none;
+        }
+        .game-layout {
+            display: flex; align-items: center; justify-content: center; gap: 80px;
+            width: 90%; max-width: 1000px;
+        }
+        .wheel-wrapper { position: relative; width: 400px; height: 400px; }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid var(--neon-pink);
+            z-index: 10; filter: drop-shadow(0 0 5px var(--neon-pink));
+        }
+        .result-box {
+            width: 300px; height: 400px;
+            background: rgba(20, 20, 40, 0.9); border: 2px solid var(--neon-blue);
+            border-radius: 15px; padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+            overflow-y: auto; text-align: left;
+        }
+        .result-title {
+            text-align: center; font-size: 1.8rem; margin-bottom: 20px;
+            color: var(--neon-blue); border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;
+        }
+        .order-list { list-style: none; padding: 0; }
+        .order-item {
+            font-size: 1.5rem; margin-bottom: 15px; padding: 10px;
+            background: rgba(255,255,255,0.05); border-radius: 8px;
+            display: flex; justify-content: space-between;
+            animation: slideIn 0.5s ease forwards; opacity: 0; transform: translateX(20px);
+        }
+
+        /* --- 第四頁：遊戲進行中 --- */
+        .page-game {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            justify-content: space-between; padding: 20px;
+        }
+        
+        /* 上方資訊列 */
+        .top-info-bar {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            width: 100%; padding: 0 40px;
+        }
+        .round-display {
+            font-size: 2.5rem; font-weight: bold;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        .base-wine-box {
+            text-align: center;
+            background: rgba(255,255,255,0.1); border-radius: 15px; padding: 10px 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .base-color-circle {
+            width: 50px; height: 50px; border-radius: 50%; margin: 5px auto;
+            box-shadow: 0 0 15px currentColor; border: 2px solid white;
+        }
+
+        /* 中間骰子區 */
+        .dice-section {
+            flex-grow: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; gap: 30px;
+        }
+        .dice-container { display: flex; gap: 40px; }
+        .die {
+            width: 100px; height: 100px;
+            background: white; border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5) inset, 0 0 20px var(--neon-blue);
+            display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+            padding: 8px; gap: 4px;
+        }
+        .dot {
+            background-color: #333; border-radius: 50%;
+            align-self: center; justify-self: center;
+            width: 100%; height: 100%;
+            visibility: hidden; /* 預設隱藏 */
+        }
+        /* 骰子點數控制 */
+        .die[data-value="1"] .dot:nth-child(5) { visibility: visible; background: #ff0055; width: 120%; height: 120%; }
+        .die[data-value="2"] .dot:nth-child(1), .die[data-value="2"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="3"] .dot:nth-child(1), .die[data-value="3"] .dot:nth-child(5), .die[data-value="3"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="4"] .dot:nth-child(1), .die[data-value="4"] .dot:nth-child(3), .die[data-value="4"] .dot:nth-child(7), .die[data-value="4"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="5"] .dot:nth-child(1), .die[data-value="5"] .dot:nth-child(3), .die[data-value="5"] .dot:nth-child(5), .die[data-value="5"] .dot:nth-child(7), .die[data-value="5"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="6"] .dot:nth-child(1), .die[data-value="6"] .dot:nth-child(3), .die[data-value="6"] .dot:nth-child(4), .die[data-value="6"] .dot:nth-child(6), .die[data-value="6"] .dot:nth-child(7), .die[data-value="6"] .dot:nth-child(9) { visibility: visible; }
+
+        .shake { animation: shake 0.5s infinite; }
+        @keyframes shake {
+            0% { transform: rotate(0deg); } 25% { transform: rotate(10deg); }
+            50% { transform: rotate(0deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(0deg); }
+        }
+
+        /* 下方玩家積分區 */
+        .scoreboard-section {
+            width: 100%; height: 180px;
+            background: rgba(0,0,0,0.5); border-top: 2px solid var(--neon-blue);
+            display: flex; gap: 15px; overflow-x: auto; padding: 15px; align-items: center;
+        }
+        .player-card {
+            min-width: 120px; height: 140px;
+            background: rgba(255,255,255,0.1); border-radius: 10px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; position: relative;
+        }
+        .player-card.active {
+            border: 2px solid var(--neon-yellow); background: rgba(255, 230, 0, 0.1);
+            transform: scale(1.1); box-shadow: 0 0 20px var(--neon-yellow); z-index: 10;
+        }
+        .p-order { font-size: 0.8rem; color: #ccc; }
+        .p-name { font-size: 1.5rem; font-weight: bold; margin: 5px 0; }
+        .p-score { font-size: 2rem; color: var(--neon-blue); font-weight: 900; }
+
+        .msg-popup {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3rem; color: var(--neon-yellow); font-weight: bold;
+            text-shadow: 0 0 20px red; pointer-events: none;
+            opacity: 0; transition: opacity 0.5s; z-index: 100;
+        }
+
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+        /* RWD */
+        @media (max-width: 900px) {
+            .game-layout { flex-direction: column; gap: 40px; }
+            .wheel-wrapper { width: 300px; height: 300px; }
+            .result-box { width: 90%; height: auto; min-height: 200px; }
+            .top-info-bar { flex-direction: column; align-items: center; gap: 10px; }
+            .dice-section { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="page1" class="page-home">
+            <h1 class="main-title">醉加損友</h1>
+            <h2 class="sub-title">喝不shot了！</h2>
+            <button class="neon-btn" onclick="switchPage('page2')">遊戲開始</button>
+            <img src="wine.png" alt="Wine" class="wine-image" onerror="this.style.display='none'">
+        </div>
+
+        <div id="page2" class="page-mode hidden">
+            <h1 class="mode-header">選擇模式</h1>
+            <div class="cards-wrapper">
+                <div class="mode-card" onclick="alert('酒鬼模式功能開發中...')">
+                    <div class="card-title">無乃酒鬼模式</div>
+                    <div class="card-desc">直球對決，輸者全乾</div>
+                </div>
+                <div class="mode-card" onclick="initFamilyMode()">
+                    <div class="card-title">闔家歡模式</div>
+                    <div class="card-desc">積分制，5回合結算</div>
+                </div>
+            </div>
+            <button class="neon-btn" style="margin-top:50px; background: transparent; border: 1px solid #555;" onclick="switchPage('page1')">返回</button>
+        </div>
+
+        <div id="page3" class="page-family hidden">
+            <div class="input-section">
+                <span style="font-size: 1.5rem;">玩家人數：</span>
+                <input type="number" id="playerCount" class="input-box" min="2" max="20" value="5">
+                <button class="neon-btn" style="margin-top:0; padding: 10px 20px;" onclick="setupWheel()">設定</button>
+            </div>
+
+            <div class="game-layout">
+                <div class="wheel-wrapper">
+                    <div class="pointer"></div>
+                    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-title">順序結果</div>
+                    <ul id="orderList" class="order-list">
+                        <li style="color: #666; text-align: center;">請按開始轉盤</li>
+                    </ul>
+                    <div id="startGameContainer" style="text-align: center; margin-top: 20px; display: none;">
+                        <button class="neon-btn" style="padding: 10px 30px; font-size: 1.2rem;" onclick="enterGame()">進入遊戲</button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="spinBtn" class="neon-btn" onclick="spinWheel()" disabled>開始轉盤</button>
+            <button class="neon-btn" style="background: transparent; border: 1px solid #555; margin-top: 20px; font-size: 1rem;" onclick="switchPage('page2')">返回選擇</button>
+        </div>
+
+        <div id="page4" class="page-game hidden">
+            <div class="top-info-bar">
+                <div class="round-display">
+                    ROUND <span id="currentRoundText" style="color: var(--neon-pink)">1</span> / <span id="totalRoundText">5</span>
+                </div>
+                <div class="base-wine-box">
+                    <div>本局基底</div>
+                    <div id="baseColorCircle" class="base-color-circle"></div>
+                    <div id="baseColorName" style="font-weight: bold; font-size: 1.2rem;">?</div>
+                </div>
+            </div>
+
+            <div class="dice-section">
+                <div id="msgPopup" class="msg-popup">回合 +1 !</div>
+                
+                <div class="dice-container">
+                    <div class="die" id="die1" data-value="1">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                    <div class="die" id="die2" data-value="6">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+
+                <button id="rollBtn" class="neon-btn" onclick="rollDice()">擲骰子</button>
+                <div id="actionHint" style="color: #ccc; margin-top: 10px;">輪到 <span id="turnPlayerName" style="color: var(--neon-yellow)"></span></div>
+            </div>
+
+            <div id="scoreboard" class="scoreboard-section">
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 全局變數 ---
+        let gamePlayers = []; // [{id: 1, score: 0}, {id: 2, score: 0}...] 依照順序排列
+        let currentRound = 1;
+        let totalRounds = 5;
+        let currentPlayerIndex = 0; // 0 ~ N-1
+        let isRolling = false;
+
+        // 頁面切換
+        function switchPage(pageId) {
+            document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // --- 轉盤相關 (Page 3) ---
+        function initFamilyMode() {
+            switchPage('page3');
+            setupWheel();
+            document.getElementById("startGameContainer").style.display = "none"; // 隱藏進入遊戲按鈕
+        }
+
+        let canvas = document.getElementById("wheelCanvas");
+        let ctx = canvas.getContext("2d");
+        let numPlayers = 5;
+        let arc = 0;
+        let startAngle = 0;
+        let spinTimeout = null;
+        let spinArcStart = 10;
+        let spinTime = 0;
+        let spinTimeTotal = 0;
+        let isSpinning = false;
+        
+        const colors = ["#FF0055", "#00F2FE", "#FFE600", "#9D00FF", "#00FF66", "#FF6B6B", "#4facfe", "#FF9900"];
+
+        function setupWheel() {
+            let input = document.getElementById("playerCount").value;
+            numPlayers = parseInt(input);
+            if(numPlayers < 2) { alert("人數至少 2 人"); return; }
+            
+            arc = (2 * Math.PI) / numPlayers;
+            drawWheel();
+            
+            document.getElementById("spinBtn").disabled = false;
+            document.getElementById("orderList").innerHTML = '<li style="color: #666; text-align: center;">準備完成，請按開始</li>';
+            document.getElementById("startGameContainer").style.display = "none";
+        }
+
+        function drawWheel() {
+            if (canvas.getContext) {
+                let outsideRadius = 190;
+                let textRadius = 150;
+                let insideRadius = 40;
+
+                ctx.clearRect(0, 0, 400, 400);
+                ctx.strokeStyle = "#0f0c29";
+                ctx.lineWidth = 2;
+
+                for(let i = 0; i < numPlayers; i++) {
+                    let angle = startAngle + i * arc;
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.beginPath();
+                    ctx.arc(200, 200, outsideRadius, angle, angle + arc, false);
+                    ctx.arc(200, 200, insideRadius, angle + arc, angle, true);
+                    ctx.stroke();
+                    ctx.fill();
+
+                    ctx.save();
+                    ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2; ctx.shadowBlur = 4; ctx.shadowColor = "rgba(0,0,0,0.5)";
+                    ctx.fillStyle = "white";
+                    ctx.font = "bold 24px Arial";
+                    ctx.translate(200 + Math.cos(angle + arc / 2) * textRadius, 200 + Math.sin(angle + arc / 2) * textRadius);
+                    ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                    let text = (i + 1) + "號";
+                    ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                    ctx.restore();
+                }
+            }
+        }
+
+        function spinWheel() {
+            if(isSpinning) return;
+            isSpinning = true;
+            document.getElementById("spinBtn").disabled = true;
+            document.getElementById("orderList").innerHTML = '<li style="color: #666; text-align: center;">抽籤中...</li>';
+            document.getElementById("startGameContainer").style.display = "none";
+
+            spinArcStart = Math.random() * 10 + 10;
+            spinTime = 0;
+            spinTimeTotal = Math.random() * 3000 + 4000;
+            rotateWheel();
+        }
+
+        function rotateWheel() {
+            spinTime += 30;
+            if(spinTime >= spinTimeTotal) {
+                stopRotateWheel();
+                return;
+            }
+            let spinAngle = spinArcStart - easeOut(spinTime, 0, spinArcStart, spinTimeTotal);
+            startAngle += (spinAngle * Math.PI / 180);
+            drawWheel();
+            spinTimeout = setTimeout('rotateWheel()', 30);
+        }
+
+        function stopRotateWheel() {
+            clearTimeout(spinTimeout);
+            isSpinning = false;
+            document.getElementById("spinBtn").disabled = false;
+            generateRandomOrder();
+        }
+
+        function easeOut(t, b, c, d) {
+            let ts = (t/=d)*t;
+            let tc = ts*t;
+            return b+c*(tc + -3*ts + 3*t);
+        }
+
+        function generateRandomOrder() {
+            let players = [];
+            for(let i=1; i<=numPlayers; i++) { players.push(i); }
+            
+            // 洗牌
+            for (let i = players.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [players[i], players[j]] = [players[j], players[i]];
+            }
+
+            // 儲存到全域變數，供遊戲使用
+            gamePlayers = players.map(id => ({ id: id, score: 0 }));
+
+            // 顯示結果
+            let listHtml = "";
+            players.forEach((p, index) => {
+                let label = (index < 3) ? `第${index+1}順位` : `第${index+1}順位`;
+                let delay = index * 0.1; 
+                listHtml += `<li class="order-item" style="animation-delay: ${delay}s">
+                                <span>${label}</span>
+                                <strong>${p} 號玩家</strong>
+                             </li>`;
+            });
+            document.getElementById("orderList").innerHTML = listHtml;
+            
+            // 顯示「進入遊戲」按鈕
+            document.getElementById("startGameContainer").style.display = "block";
+        }
+
+
+        // --- 遊戲邏輯 (Page 4) ---
+
+        function enterGame() {
+            // 初始化遊戲數據
+            currentRound = 1;
+            totalRounds = 5;
+            currentPlayerIndex = 0;
+            
+            // 初始化基底酒
+            initBaseWine();
+            
+            // 初始化 UI
+            updateRoundDisplay();
+            renderScoreboard();
+            updateTurnInfo();
+
+            switchPage('page4');
+        }
+
+        function initBaseWine() {
+            const bases = [
+                { name: "紅酒", color: "#ff4d4d", shadow: "#ff0000" },
+                { name: "藍調", color: "#4d4dff", shadow: "#0000ff" },
+                { name: "啤酒", color: "#ffcc00", shadow: "#ffa500" }
+            ];
+            const randomBase = bases[Math.floor(Math.random() * bases.length)];
+            const circle = document.getElementById("baseColorCircle");
+            circle.style.backgroundColor = randomBase.color;
+            circle.style.boxShadow = `0 0 15px ${randomBase.shadow}`;
+            circle.style.borderColor = "white";
+            document.getElementById("baseColorName").innerText = randomBase.name;
+            document.getElementById("baseColorName").style.color = randomBase.color;
+        }
+
+        function renderScoreboard() {
+            const board = document.getElementById("scoreboard");
+            board.innerHTML = "";
+            
+            gamePlayers.forEach((p, index) => {
+                const div = document.createElement("div");
+                div.className = `player-card ${index === currentPlayerIndex ? 'active' : ''}`;
+                div.id = `p-card-${index}`;
+                div.innerHTML = `
+                    <div class="p-order">第 ${index + 1} 順位</div>
+                    <div class="p-name">${p.id} 號</div>
+                    <div class="p-score" id="score-${index}">0</div>
+                `;
+                board.appendChild(div);
+            });
+        }
+
+        function updateTurnInfo() {
+            // 更新計分板高亮
+            document.querySelectorAll('.player-card').forEach(c => c.classList.remove('active'));
+            const activeCard = document.getElementById(`p-card-${currentPlayerIndex}`);
+            if(activeCard) {
+                activeCard.classList.add('active');
+                activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+
+            const currentPlayerId = gamePlayers[currentPlayerIndex].id;
+            document.getElementById("turnPlayerName").innerText = `${currentPlayerId} 號玩家`;
+            document.getElementById("rollBtn").disabled = false;
+            document.getElementById("rollBtn").innerText = "擲骰子";
+        }
+
+        function updateRoundDisplay() {
+            document.getElementById("currentRoundText").innerText = currentRound;
+            document.getElementById("totalRoundText").innerText = totalRounds;
+        }
+
+        function rollDice() {
+            if(isRolling) return;
+            isRolling = true;
+            document.getElementById("rollBtn").disabled = true;
+
+            const die1 = document.getElementById("die1");
+            const die2 = document.getElementById("die2");
+
+            // 動畫
+            die1.classList.add("shake");
+            die2.classList.add("shake");
+
+            let tempRolls = 0;
+            let interval = setInterval(() => {
+                die1.dataset.value = Math.floor(Math.random() * 6) + 1;
+                die2.dataset.value = Math.floor(Math.random() * 6) + 1;
+                tempRolls++;
+                if(tempRolls > 10) {
+                    clearInterval(interval);
+                    finalizeRoll();
+                }
+            }, 50);
+        }
+
+        function finalizeRoll() {
+            const die1El = document.getElementById("die1");
+            const die2El = document.getElementById("die2");
+            
+            die1El.classList.remove("shake");
+            die2El.classList.remove("shake");
+
+            // 實際結果
+            const v1 = Math.floor(Math.random() * 6) + 1;
+            const v2 = Math.floor(Math.random() * 6) + 1;
+            
+            die1El.dataset.value = v1;
+            die2El.dataset.value = v2;
+
+            const sum = v1 + v2;
+            const isDouble = (v1 === v2);
+
+            // 增加分數
+            gamePlayers[currentPlayerIndex].score += sum;
+            document.getElementById(`score-${currentPlayerIndex}`).innerText = gamePlayers[currentPlayerIndex].score;
+
+            // 檢查特殊規則：總和 9 或 豹子 -> 加一回合
+            if (sum === 9 || isDouble) {
+                totalRounds++;
+                updateRoundDisplay();
+                showPopup("回合 +1 !");
+            }
+
+            // 準備下一位
+            setTimeout(() => {
+                nextTurn();
+            }, 1000);
+        }
+
+        function nextTurn() {
+            currentPlayerIndex++;
+            
+            // 如果所有人都骰完一輪
+            if(currentPlayerIndex >= numPlayers) {
+                currentPlayerIndex = 0;
+                currentRound++;
+                
+                if(currentRound > totalRounds) {
+                    endGame();
+                    return;
+                }
+                updateRoundDisplay();
+            }
+            
+            isRolling = false;
+            updateTurnInfo();
+        }
+
+        function showPopup(text) {
+            const popup = document.getElementById("msgPopup");
+            popup.innerText = text;
+            popup.style.opacity = 1;
+            popup.style.top = "40%";
+            setTimeout(() => {
+                popup.style.opacity = 0;
+                popup.style.top = "50%";
+            }, 1500);
+        }
+
+        function endGame() {
+            // 找出最高分
+            let maxScore = -1;
+            gamePlayers.forEach(p => { if(p.score > maxScore) maxScore = p.score; });
+            let winners = gamePlayers.filter(p => p.score === maxScore).map(p => p.id + "號");
+
+            let msg = `遊戲結束！\n總回合：${totalRounds}\n最高分：${maxScore}\n贏家：${winners.join(", ")}`;
+            alert(msg);
+            
+            // 重置按鈕
+            document.getElementById("rollBtn").innerText = "回首頁";
+            document.getElementById("rollBtn").disabled = false;
+            document.getElementById("rollBtn").onclick = function() { location.reload(); };
+        }
+
+    </script>
+</body>
+</html>
