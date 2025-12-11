@@ -686,6 +686,9 @@
                     handleAddRandomColor();
                     break;
                 case 5:
+                    // 掰手腕 (New!)
+                    handleArmWrestling();
+                    break;
                 case 6:
                     // 實體黑白切
                     handleBlackWhiteAlcoholic();
@@ -746,6 +749,21 @@
                 <p style="margin-top:20px; color:var(--neon-yellow);">誰輸了？</p>
             `;
             // 開啟輸家選擇視窗
+            openLoserSelectionModal(title, body, currentPlayerIndex, currentOpponentIndex);
+        }
+
+        // (酒鬼) 掰手腕 (新增功能)
+        function handleArmWrestling() {
+            let opponentIndices = gamePlayers.map((_, i) => i).filter(i => i !== currentPlayerIndex);
+            currentOpponentIndex = opponentIndices[Math.floor(Math.random() * opponentIndices.length)];
+            let opponent = gamePlayers[currentOpponentIndex];
+
+            const title = "掰手腕對決 💪";
+            const body = `
+                <p>對手是：<strong style="color:var(--neon-pink)">${opponent.id} 號</strong></p>
+                <p>請進行實體掰手腕！</p>
+                <p style="margin-top:20px; color:var(--neon-yellow);">誰輸了？</p>
+            `;
             openLoserSelectionModal(title, body, currentPlayerIndex, currentOpponentIndex);
         }
 
@@ -988,7 +1006,11 @@
                     <p style="color:var(--neon-yellow); font-weight:bold; margin-bottom:5px;">1. 基底酒機制</p>
                     <ul class="rules-list">
                         <li>遊戲開始時，電腦會從 <span style="color:#ff4d4d">紅</span>、<span style="color:#4d4dff">藍</span>、<span style="color:#ffcc00">黃</span> 三種顏色中隨機選出 1 種作為本回合的基底酒。</li>
-                    </ul>
+                    <li><strong>結算：</strong>每 5 回合結算。</li>
+				   <li><strong>贏家：</strong>最高分者加 1 種酒。</li>
+				   <li><strong>輸家：</strong>最低分者喝掉。</li>
+				   <li><strong>平手：</strong>贏家各加一種酒；輸家平分酒喝交杯酒。</li>
+					</ul>
                     <p style="color:var(--neon-yellow); font-weight:bold; margin-bottom:5px;">2. 骰子事件表</p>
                     <table class="rules-table">
                         <thead><tr><th width="30%">點數</th><th>事件說明</th></tr></thead>
@@ -1013,7 +1035,7 @@
                 <div style="text-align: left;">
                     <p style="color:var(--neon-yellow); font-weight:bold; margin-bottom:5px;">模式核心</p>
                     <ul class="rules-list">
-                        <li>直球對決！只算喝了幾杯。</li>
+                        <li>遊戲開始時，電腦會從 <span style="color:#ff4d4d">紅</span>、<span style="color:#4d4dff">藍</span>、<span style="color:#ffcc00">黃</span> 三種顏色中隨機選出 1 種作為本回合的基底酒。</li>
                         <li><strong>沒有回合限制</strong>，直到有人喝滿 3 杯。</li>
                         <li><strong>任何喝酒懲罰發生時</strong>：喝完 -> 換新基底 -> 下一位。</li>
                     </ul>
@@ -1023,7 +1045,8 @@
                         <tbody>
                             <tr><td>3</td><td>我有你沒有：隨機指定對手，輸家喝。</td></tr>
                             <tr><td>4 或 8</td><td>電腦隨機加 1 種酒</td></tr>
-                            <tr><td>5 或 6</td><td>實體黑白切：隨機指定對手，輸家喝。</td></tr>
+                            <tr><td>5</td><td>掰手腕：隨機指定對手，輸家喝。</td></tr>
+                            <tr><td>6</td><td>實體黑白切：隨機指定對手，輸家喝。</td></tr>
                             <tr><td>7</td><td>自己選擇加 1 種酒</td></tr>
                             <tr><td>9</td><td>射龍門：抽第3張，撞柱/射偏喝。</td></tr>
                             <tr><td>對子</td><td>直接喝一杯！</td></tr>
