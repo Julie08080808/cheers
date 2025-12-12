@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "type": "truth",
+    "content": "說出你最尷尬的約會經歷"
+  },
+  {
+    "id": 2,
+    "type": "truth",
+    "content": "你做過最瘋狂的事情是什麼？"
+  },
+  {
+    "id": 3,
+    "type": "truth",
+    "content": "你暗戀過誰？"
+  },
+  {
+    "id": 4,
+    "type": "truth",
+    "content": "你最害怕的事情是什麼？"
+  },
+  {
+    "id": 5,
+    "type": "truth",
+    "content": "說出你手機裡最近的一張照片是什麼"
+  },
+  {
+    "id": 6,
+    "type": "dare",
+    "content": "模仿在場任何一個人的動作或說話方式"
+  },
+  {
+    "id": 7,
+    "type": "dare",
+    "content": "唱一首歌給大家聽"
+  },
+  {
+    "id": 8,
+    "type": "dare",
+    "content": "做10個伏地挺身"
+  },
+  {
+    "id": 9,
+    "type": "dare",
+    "content": "打電話給你的朋友說「我愛你」"
+  },
+  {
+    "id": 10,
+    "type": "dare",
+    "content": "用外語說一段話（至少10秒）"
+  },
+  {
+    "id": 11,
+    "type": "truth",
+    "content": "你做過最後悔的事情是什麼？"
+  },
+  {
+    "id": 12,
+    "type": "truth",
+    "content": "如果可以穿越時空，你最想回到哪個時刻？"
+  },
+  {
+    "id": 13,
+    "type": "dare",
+    "content": "讓在場的人給你的臉上畫畫"
+  },
+  {
+    "id": 14,
+    "type": "dare",
+    "content": "跳一段即興舞蹈"
+  },
+  {
+    "id": 15,
+    "type": "dare",
+    "content": "發一則尷尬的貼文到社交媒體（可在遊戲結束後刪除）"
+  },
+  {
+    "id": 16,
+    "type": "truth",
+    "content": "你會選擇愛情還是麵包？"
+  },
+  {
+    "id": 17,
+    "type": "truth",
+    "content": "說出你最不喜歡的一個人（不在場的）"
+  },
+  {
+    "id": 18,
+    "type": "dare",
+    "content": "讓左邊的人餵你喝一口酒"
+  },
+  {
+    "id": 19,
+    "type": "dare",
+    "content": "用搞笑的聲音重複下一個人說的話"
+  },
+  {
+    "id": 20,
+    "type": "dare",
+    "content": "閉上眼睛，讓在場的人摸你的臉並猜是誰"
+  }
+]

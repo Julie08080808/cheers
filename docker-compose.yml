@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: cheers-backend
+    restart: always
+    environment:
+      - ENV=production
+      - DATABASE_URL=sqlite:///./data/cheers.db
+    volumes:
+      - ./backend/data:/app/data  # SQLite 資料庫持久化
+    networks:
+      - cheers-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: cheers-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - backend
+    networks:
+      - cheers-network
+
+networks:
+  cheers-network:
+    driver: bridge

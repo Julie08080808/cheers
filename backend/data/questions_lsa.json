@@ -1,0 +1,107 @@
+[
+  {
+    "id": 1,
+    "category": "基礎觀念",
+    "question": "Linux 中哪個命令可以查看當前目錄下的所有檔案？",
+    "options": ["cd", "ls", "pwd", "mkdir"],
+    "answer": "ls"
+  },
+  {
+    "id": 2,
+    "category": "權限管理",
+    "question": "Linux 檔案權限 rwxr-xr-- 用數字表示是什麼？",
+    "options": ["754", "644", "755", "744"],
+    "answer": "754"
+  },
+  {
+    "id": 3,
+    "category": "網路安全",
+    "question": "SSH 預設使用哪個 port？",
+    "options": ["21", "22", "23", "80"],
+    "answer": "22"
+  },
+  {
+    "id": 4,
+    "category": "系統管理",
+    "question": "哪個命令可以查看系統中正在運行的所有進程？",
+    "options": ["ls", "ps", "cd", "cat"],
+    "answer": "ps"
+  },
+  {
+    "id": 5,
+    "category": "Docker",
+    "question": "Docker 中哪個命令用於啟動容器？",
+    "options": ["docker start", "docker run", "docker pull", "docker build"],
+    "answer": "docker run"
+  },
+  {
+    "id": 6,
+    "category": "防火牆",
+    "question": "iptables 是什麼？",
+    "options": ["文字編輯器", "防火牆工具", "資料庫", "網頁伺服器"],
+    "answer": "防火牆工具"
+  },
+  {
+    "id": 7,
+    "category": "檔案系統",
+    "question": "Linux 中根目錄用什麼符號表示？",
+    "options": ["~", "/", ".", ".."],
+    "answer": "/"
+  },
+  {
+    "id": 8,
+    "category": "套件管理",
+    "question": "Ubuntu 使用哪個套件管理工具？",
+    "options": ["yum", "apt", "pacman", "brew"],
+    "answer": "apt"
+  },
+  {
+    "id": 9,
+    "category": "網路協定",
+    "question": "HTTP 協定預設使用哪個 port？",
+    "options": ["80", "443", "8080", "3000"],
+    "answer": "80"
+  },
+  {
+    "id": 10,
+    "category": "加密技術",
+    "question": "HTTPS 使用哪種加密協定？",
+    "options": ["FTP", "SSH", "SSL/TLS", "SMTP"],
+    "answer": "SSL/TLS"
+  },
+  {
+    "id": 11,
+    "category": "Shell 腳本",
+    "question": "Bash 腳本的副檔名通常是什麼？",
+    "options": [".sh", ".bash", ".script", ".txt"],
+    "answer": ".sh"
+  },
+  {
+    "id": 12,
+    "category": "日誌管理",
+    "question": "Linux 系統日誌通常存放在哪個目錄？",
+    "options": ["/home", "/var/log", "/etc", "/tmp"],
+    "answer": "/var/log"
+  },
+  {
+    "id": 13,
+    "category": "資料庫",
+    "question": "MySQL 預設使用哪個 port？",
+    "options": ["3306", "5432", "27017", "6379"],
+    "answer": "3306"
+  },
+  {
+    "id": 14,
+    "category": "Web 伺服器",
+    "question": "NGINX 是什麼類型的軟體？",
+    "options": ["資料庫", "防火牆", "Web 伺服器", "編譯器"],
+    "answer": "Web 伺服器"
+  },
+  {
+    "id": 15,
+    "category": "版本控制",
+    "question": "Git 中哪個命令用於提交變更？",
+    "options": ["git push", "git commit", "git add", "git pull"],
+    "answer": "git commit"
+  }
+]
