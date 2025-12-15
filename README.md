@@ -1,224 +1,33 @@
-# 醉加損友 - 互動式智慧調酒系統
+# Drunk & Dangerous Friends
 
-一個結合樹莓派、調酒機與 LSA 知識問答的互動遊戲系統。
+## Concept Development
 
-## 技術棧
+<!-- Why does your team want to build this idea/project?  -->
 
-- **後端**: Python 3.11 + FastAPI + SQLAlchemy + SQLite
-- **前端**: HTML5 + CSS3 + JavaScript (ES6+)
-- **套件管理**: uv
-- **部署**: Docker + Docker Compose + NGINX
-- **硬體**: Raspberry Pi + L298N Motor Driver + 蠕動幫浦
+## Implementation Resources
 
-## 專案結構
+<!-- e.g., How many Raspberry Pi? How much you spent on these resources? -->
 
-```
-cheers/
-├── backend/           # FastAPI 後端
-│   ├── main.py        # 應用入口
-│   ├── database.py    # 資料庫設定
-│   ├── models/        # SQLAlchemy 模型
-│   ├── routers/       # API 路由
-│   ├── schemas/       # Pydantic 模式
-│   ├── services/      # 業務邏輯
-│   └── data/          # 題庫 JSON 檔案
-├── frontend/          # 前端靜態檔案
-├── nginx/             # NGINX 設定
-├── docker-compose.yml # Docker Compose 設定
-├── dev-start.sh       # 開發環境啟動腳本
-├── dev-stop.sh        # 開發環境停止腳本
-├── dev-restart.sh     # 開發環境重啟腳本
-└── dev-status.sh      # 開發環境狀態檢查
-```
+## Existing Library/Software
 
-## 快速開始
+<!-- Which libraries do you use while you implement the project -->
 
-### 開發環境
+## Implementation Process
 
-#### 方法一：使用開發腳本（推薦）
+<!-- What kind of problems you encounter, and how did you resolve the issue? -->
 
-```bash
-# 啟動開發環境
-./dev-start.sh
+## Knowledge from Lecture
 
-# 停止開發環境
-./dev-stop.sh
+<!-- What kind of knowledge did you use on this project? -->
 
-# 重啟開發環境
-./dev-restart.sh
+## Installation
 
-# 查看狀態
-./dev-status.sh
+<!-- How do the user install with your project? -->
 
-# 停止並清理日誌
-./dev-stop.sh --clean-logs
+## Usage
 
-# 查看即時日誌
-tail -f backend.log
-```
+<!-- How to use your project -->
 
-#### 方法二：手動啟動
+## Job Assignment
 
-```bash
-# 安裝 uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 安裝依賴
-cd backend
-uv sync
-
-# 啟動開發伺服器
-uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-訪問:
-- API: http://localhost:8000
-- API 文件: http://localhost:8000/docs
-- 前端: 開啟 `frontend/index.html`
-
-### 生產環境部署
-
-#### 使用 Docker Compose
-
-```bash
-# 構建並啟動所有服務
-docker-compose up -d --build
-
-# 查看日誌
-docker-compose logs -f
-
-# 停止服務
-docker-compose down
-```
-
-訪問 http://localhost 開始遊戲
-
-## 開發腳本說明
-
-### dev-start.sh
-自動啟動開發環境，功能包括：
-- 🔍 檢查並停止舊進程
-- 📦 檢查依賴和虛擬環境
-- 🚀 啟動後端服務器（背景運行）
-- ✅ 健康檢查（最多重試 5 次）
-- 📝 記錄 PID 以便管理
-
-### dev-stop.sh
-完全停止開發環境，功能包括：
-- 🎯 通過 PID 檔案停止進程
-- 🧹 清理遺留的 uvicorn 進程
-- 🔓 釋放被佔用的端口 8000
-- 🗑️ 可選清理日誌（`--clean-logs`）
-
-### dev-restart.sh
-一鍵重啟開發環境：
-- 先執行 `dev-stop.sh`
-- 等待 1 秒
-- 再執行 `dev-start.sh`
-
-### dev-status.sh
-查看開發環境狀態：
-- 📊 PID 檔案資訊
-- 🔌 端口佔用情況
-- 💚 API 健康狀態
-- 📜 最近 10 行日誌
-- 🔍 相關進程列表
-
-## API 端點
-
-### 遊戲管理
-- `POST /api/game` - 創建遊戲房間
-- `GET /api/game/{game_id}` - 獲取遊戲狀態
-- `POST /api/game/{game_id}/start` - 開始遊戲
-- `POST /api/game/{game_id}/roll` - 擲骰子
-- `POST /api/game/{game_id}/next-turn` - 下一位玩家
-
-### 題庫 API
-- `GET /api/questions/lsa/random` - 隨機 LSA 問答
-- `GET /api/questions/truth/random` - 隨機真心話大冒險
-
-### 調酒機控制
-- `POST /api/drink/pour` - 倒酒
-- `GET /api/drink/status` - 調酒機狀態
-
-## 遊戲模式
-
-### 闔家歡模式 (Family Mode)
-適合全年齡的趣味模式，包含 LSA 問答、黑白切、真心話大冒險等事件。
-
-### 酒鬼模式 (Alcoholic Mode)
-成人向飲酒遊戲模式，包含「我有你沒有」、射龍門等事件。
-
-## 硬體配置
-
-### GPIO 腳位配置
-| 幫浦 | IN1 | IN2 | 顏色 |
-|------|-----|-----|------|
-| 1 | GPIO 23 | GPIO 22 | 紅色 |
-| 2 | GPIO 27 | GPIO 17 | 藍色 |
-| 3 | GPIO 5 | GPIO 6 | 黃色 |
-
-### 流量規格
-- 1 秒 ≈ 8ml
-
-## 開發指南
-
-### 新增題庫
-編輯 `backend/data/questions_lsa.json` 或 `questions_truth.json`
-
-### 新增配方
-在資料庫中新增 `Recipe` 記錄，或修改 `pump_controller.py` 的預設配方
-
-### 修改遊戲邏輯
-編輯 `backend/services/game_logic.py` 的事件對照表
-
-### 疑難排解
-
-**問題：端口 8000 已被佔用**
-```bash
-./dev-stop.sh  # 會自動清理端口佔用
-```
-
-**問題：進程無法停止**
-```bash
-# 方法 1：使用停止腳本（推薦）
-./dev-stop.sh
-
-# 方法 2：手動清理
-pkill -9 -f "uvicorn main:app"
-lsof -ti:8000 | xargs kill -9
-```
-
-**問題：查看詳細日誌**
-```bash
-# 即時日誌
-tail -f backend.log
-
-# 完整日誌
-cat backend.log
-
-# 最近錯誤
-tail -n 50 backend.log | grep -i error
-```
-
-**問題：檢查服務狀態**
-```bash
-./dev-status.sh
-```
-
-## 環境變數
-
-```bash
-DATABASE_URL=sqlite:///./data/cheers.db  # 資料庫路徑
-ENV=production                           # 環境（development/production）
-```
-
-## 授權
-
-本專案為國立暨南大學 Linux 系統與應用（LSA）課程期末專題。
-
-## 貢獻者
-
-- 專案作者: [Your Name]
-- 課程: Linux 系統與應用
-- 學年: 2024-2025
+## References
