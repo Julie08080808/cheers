@@ -215,7 +215,7 @@ ENV=production                           # 環境（development/production）
 
 ## 授權
 
-本專案為台灣大學 Linux 系統與應用（LSA）課程期末專題。
+本專案為國立暨南大學 Linux 系統與應用（LSA）課程期末專題。
 
 ## 貢獻者
 
