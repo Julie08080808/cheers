@@ -47,6 +47,8 @@
 
 ## Existing Library/Software 遊戲列表與技術概覽
 
+## 功能架構圖
+
 <!-- Which libraries do you use while you implement the project -->
 模式介紹
 | 項目 | 酒鬼模式 | 闔家歡模式 |
@@ -151,6 +153,6 @@
 - 蓬萊人偶 $$$
 
 ## 客串名單
-邱奕禓、陳章銓、(待補)
+邱奕禓、陳章銓、張峻碩、柏瑋學長
 
 ## References
