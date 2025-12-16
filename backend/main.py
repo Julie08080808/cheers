@@ -39,6 +39,8 @@ class GameRoom:
         self.current_turn_index = 0  # 當前輪到的玩家索引
         self.current_round = 1  # 當前回合數
         self.game_mode = 'family'  # 遊戲模式
+        self.game_ended = False  # 遊戲是否已結束
+        self.game_result = None  # 遊戲結束結果（給前端顯示用）
 
         # 轉盤狀態
         self.wheel_spinning = False  # 轉盤是否正在旋轉
@@ -49,6 +51,7 @@ class GameRoom:
 
         # 遊戲進行中的共享狀態（所有玩家看到相同畫面）
         self.base_wine_color = None  # 當前基底酒顏色
+        self.base_pump_id = None  # 當前基底幫浦編號（1-4），所有玩家使用相同幫浦
         self.dice_values = [1, 1]  # 當前骰子值 [die1, die2]
         self.current_question = None  # 當前題目
         self.current_answer = None  # 當前答案
@@ -214,8 +217,11 @@ class GameRoom:
         self.wheel_candidates = []
         self.current_turn_index = 0
         self.current_round = 1
+        self.game_ended = False
+        self.game_result = None
         # 重置遊戲共享狀態
         self.base_wine_color = None
+        self.base_pump_id = None
         self.dice_values = [1, 1]
         self.current_question = None
         self.current_answer = None
@@ -349,8 +355,11 @@ class GameRoom:
             "current_player_id": current_player_id,
             "current_round": self.current_round,
             "game_mode": self.game_mode,
+            "game_ended": self.game_ended,
+            "game_result": self.game_result,
             # 共享遊戲畫面（所有玩家看到相同內容）
             "base_wine_color": self.base_wine_color,
+            "base_pump_id": self.base_pump_id,
             "dice_values": self.dice_values,
             "current_question": self.current_question,
             "current_answer": self.current_answer,
@@ -648,7 +657,7 @@ class RollDiceRequest(BaseModel):
 
 class SetBaseWineRequest(BaseModel):
     player_id: str
-    color: str
+    color: Optional[str] = None  # 可選，如果不提供則後端隨機選擇
 
 class SetQuestionRequest(BaseModel):
     player_id: str
@@ -680,16 +689,45 @@ def roll_dice(request: RollDiceRequest):
 @app.post("/api/game/set-base-wine")
 def set_base_wine(request: SetBaseWineRequest):
     """設定基底酒（所有玩家看到相同基底）"""
-    if not game_room.game_started:
-        raise HTTPException(status_code=400, detail="遊戲尚未開始")
+    # 移除遊戲開始檢查，允許隨時設定基底酒
 
-    game_room.base_wine_color = request.color
+    # 如果沒有提供顏色，後端隨機選擇
+    if request.color:
+        chosen_color = request.color
+        print(f"🎯 使用指定基底酒: {chosen_color}")
+    else:
+        import random
+        wine_colors = ['red', 'blue', 'yellow', 'green']
+
+        # 避免連續選到相同顏色（至少嘗試選擇不同的）
+        if game_room.base_wine_color and len(wine_colors) > 1:
+            available_colors = [c for c in wine_colors if c != game_room.base_wine_color]
+            chosen_color = random.choice(available_colors)
+            print(f"🎲 後端隨機選擇基底酒（避免重複）: {chosen_color} (上次: {game_room.base_wine_color})")
+        else:
+            chosen_color = random.choice(wine_colors)
+            print(f"🎲 後端隨機選擇基底酒: {chosen_color}")
+
+    # 同時隨機選擇一個基底幫浦（1-4），並同步到所有玩家
+    import random
+
+    # 避免連續選到相同幫浦
+    if game_room.base_pump_id and game_room.base_pump_id in [1, 2, 3, 4]:
+        available_pumps = [p for p in [1, 2, 3, 4] if p != game_room.base_pump_id]
+        game_room.base_pump_id = random.choice(available_pumps)
+        print(f"🎲 後端隨機選擇基底幫浦（避免重複）: {game_room.base_pump_id}")
+    else:
+        game_room.base_pump_id = random.choice([1, 2, 3, 4])
+        print(f"🎲 後端隨機選擇基底幫浦: {game_room.base_pump_id}")
+
+    game_room.base_wine_color = chosen_color
     game_room.wine_stack.clear()  # 清空酒堆疊
-    print(f"🍷 設定基底酒: {request.color}，清空酒堆疊")
+    print(f"🍷 設定基底酒: {chosen_color}（幫浦 {game_room.base_pump_id}），清空酒堆疊")
 
     return {
         "success": True,
         "base_wine_color": game_room.base_wine_color,
+        "base_pump_id": game_room.base_pump_id,
         "wine_stack": game_room.wine_stack
     }
 
@@ -749,6 +787,21 @@ def update_score(request: UpdateScoreRequest):
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
+    # 檢查遊戲是否結束（酒鬼模式：有人喝滿3杯）
+    if game_room.game_mode == 'drunk' and new_score >= 3:
+        game_room.game_ended = True
+        player_name = game_room.players[request.player_id].player_name if request.player_id in game_room.players else "玩家"
+        game_room.game_result = {
+            "mode": "drunk",
+            "loser": {
+                "player_id": request.player_id,
+                "player_name": player_name,
+                "score": new_score
+            },
+            "message": f"{player_name} 已經喝了 3 杯！遊戲結束！"
+        }
+        print(f"🏁 遊戲結束！{player_name} 喝了 {new_score} 杯")
+
     return {
         "success": True,
         "player_id": request.player_id,
@@ -767,6 +820,40 @@ def increment_round(request: IncrementRoundRequest):
     if game_room.game_mode == 'family':
         game_room.current_round = request.new_round
         print(f"🍺 回合更新: {request.new_round}")
+
+        # 檢查遊戲是否結束（闔家歡模式：完成5回合）
+        if game_room.current_round > 5:
+            game_room.game_ended = True
+
+            # 計算最高分和最低分
+            max_score = -999
+            min_score = 999
+            for player_id, score in game_room.player_scores.items():
+                if score > max_score:
+                    max_score = score
+                if score < min_score:
+                    min_score = score
+
+            # 找出贏家和輸家
+            winners = []
+            losers = []
+            for player_id, score in game_room.player_scores.items():
+                if player_id in game_room.players:
+                    player_name = game_room.players[player_id].player_name
+                    if score == max_score:
+                        winners.append({"player_id": player_id, "player_name": player_name, "score": score})
+                    if score == min_score:
+                        losers.append({"player_id": player_id, "player_name": player_name, "score": score})
+
+            game_room.game_result = {
+                "mode": "family",
+                "max_score": max_score,
+                "min_score": min_score,
+                "winners": winners,
+                "losers": losers,
+                "message": f"已完成 5 回合！遊戲結束！"
+            }
+            print(f"🏁 遊戲結束！完成 5 回合")
 
         return {
             "success": True,
@@ -817,10 +904,12 @@ def game_event(request: GameEventRequest):
     遊戲事件入口：前端只送 event / mode / score
     後端用 game_logic 決定要啟動哪顆幫浦、幾秒，然後呼叫 pump_controller
     """
+    # 使用房間的基底幫浦編號，確保所有玩家使用相同的幫浦
     decision = resolve_game_event(
         mode=request.mode,
         event=request.event,
-        score=request.score
+        score=request.score,
+        base_pump_id=game_room.base_pump_id
     )
 
     if not decision.get("success"):

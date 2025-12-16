@@ -47,10 +47,17 @@ def choose_base_pump() -> int:
 def resolve_game_event(
     mode: str,
     event: str,
-    score: Optional[int] = None
+    score: Optional[int] = None,
+    base_pump_id: Optional[int] = None
 ) -> Dict[str, Any]:
     """
     純規則函式（不控制硬體）
+
+    參數：
+    - mode: 遊戲模式（family / drunk）
+    - event: 事件類型（game_start / score / after_drink）
+    - score: 點數（僅 score 事件需要）
+    - base_pump_id: 基底幫浦編號（1-4），如果未提供則隨機選擇
 
     回傳格式：
     {
@@ -72,11 +79,15 @@ def resolve_game_event(
 
     rules = GAME_RULES[mode]
 
+    # 如果沒有提供 base_pump_id，隨機選擇一個（向下兼容）
+    if base_pump_id is None:
+        base_pump_id = choose_base_pump()
+
     # ---------- 遊戲開始 ----------
     if event == "game_start":
         return {
             "success": True,
-            "pump_id": choose_base_pump(),
+            "pump_id": base_pump_id,
             "duration": rules["game_start"],
             "message": "遊戲開始倒基底酒"
         }
@@ -95,7 +106,7 @@ def resolve_game_event(
             if score in score_group:
                 return {
                     "success": True,
-                    "pump_id": choose_base_pump(),
+                    "pump_id": base_pump_id,
                     "duration": sec,
                     "message": f"點數 {score} 觸發倒酒"
                 }
@@ -111,7 +122,7 @@ def resolve_game_event(
     if event == "after_drink":
         return {
             "success": True,
-            "pump_id": choose_base_pump(),
+            "pump_id": base_pump_id,
             "duration": rules["after_drink"],
             "message": "喝完酒後補基底"
         }
