@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>醉加損友 - 設定</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="page-family">
+            <!-- 加入房間區域 -->
+            <div id="joinSection" class="input-section">
+                <span style="font-size: 1.5rem;">輸入你的名稱：</span>
+                <input type="text" id="playerNameInput" class="input-box" placeholder="輸入名稱" maxlength="10" style="width: 200px;">
+                <button class="neon-btn" style="margin-top:0; padding: 10px 20px; font-size:1.2rem;" onclick="joinRoom()">加入房間</button>
+            </div>
+
+            <!-- 等待房間區域 -->
+            <div id="waitingSection" style="display: none;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2 style="font-size: 2rem; margin-bottom: 15px;">等待玩家加入</h2>
+                    <div style="font-size: 1.3rem; color: var(--neon-blue);">
+                        目前人數：<span id="playerCount" style="color: var(--neon-yellow); font-weight: bold;">0</span> / 6
+                        <span style="margin-left: 20px; color: #aaa;">(最少 2 人)</span>
+                    </div>
+                </div>
+
+                <!-- 偵錯面板 -->
+                <div style="background: #1a1a1a; border: 2px solid var(--neon-yellow); border-radius: 10px; padding: 15px; margin: 0 auto 20px auto; max-width: 400px; font-family: monospace; font-size: 0.9rem;">
+                    <div style="color: var(--neon-yellow); font-weight: bold; margin-bottom: 10px;">🔍 偵錯資訊</div>
+                    <div style="color: #0f0;">我的ID: <span id="debugMyId" style="color: #fff;">-</span></div>
+                    <div style="color: #0f0;">房主ID: <span id="debugHostId" style="color: #fff;">-</span></div>
+                    <div style="color: #0f0;">我是房主: <span id="debugIsHost" style="color: #fff;">-</span></div>
+                    <div style="color: #0f0;">可開始: <span id="debugCanStart" style="color: #fff;">-</span></div>
+                </div>
+
+                <!-- 玩家列表 -->
+                <div class="result-box" style="margin: 0 auto; max-width: 400px;">
+                    <div class="result-title">已加入的玩家</div>
+                    <ul id="playerList" class="order-list">
+                        <li style="color: #666; text-align: center;">等待玩家加入...</li>
+                    </ul>
+                </div>
+
+                <!-- 控制按鈕 -->
+                <div class="button-group" style="margin-top: 30px;">
+                    <button id="startGameBtn" class="neon-btn uniform-btn" onclick="startGame()" disabled style="display: none;">
+                        開始遊戲
+                    </button>
+                    <div id="waitingText" style="display: none; font-size: 1.3rem; color: var(--neon-pink);">
+                        等待房主開始遊戲...
+                    </div>
+                    <button class="neon-btn outline-btn uniform-btn" onclick="leaveRoom()">離開房間</button>
+                </div>
+            </div>
+
+            <!-- 轉盤抽順序區域 -->
+            <div id="wheelSection" style="display: none;">
+                <!-- 玩家角色提示 -->
+                <div id="wheelRoleMessage" style="text-align: center; margin-bottom: 20px; font-size: 1.3rem;">
+                    <span id="hostMessage" style="display: none; color: var(--neon-yellow);">
+                        👑 你是房主，請點擊下方按鈕開始抽順序
+                    </span>
+                    <span id="viewerMessage" style="display: none; color: var(--neon-blue);">
+                        👀 等待房主開始抽順序...
+                    </span>
+                </div>
+
+                <div class="game-layout">
+                    <div class="wheel-wrapper">
+                        <div class="pointer"></div>
+                        <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-title">順序結果</div>
+                        <ul id="orderList" class="order-list">
+                            <li style="color: #666; text-align: center;">等待抽籤...</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="spinBtn" class="neon-btn uniform-btn" onclick="spinWheel()" disabled>開始轉盤</button>
+                    <button class="neon-btn uniform-btn" onclick="window.location.href='/mode'">返回選擇</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

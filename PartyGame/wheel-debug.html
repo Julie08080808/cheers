@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>轉盤同步測試</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #ff00cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover { background: #cc0099; }
+        .log {
+            background: #000;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .info { color: #0ff; }
+        .warning { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 轉盤同步除錯工具</h1>
+
+    <div class="section">
+        <h2>步驟 1: 加入房間</h2>
+        <input type="text" id="playerName" placeholder="玩家名稱" value="測試玩家" style="padding: 10px; font-size: 16px;">
+        <button onclick="joinRoom()">加入房間</button>
+        <div>我的ID: <span id="myId" style="color: #0ff;">-</span></div>
+    </div>
+
+    <div class="section">
+        <h2>步驟 2: 房間狀態監控</h2>
+        <button onclick="startMonitoring()">開始監控房間狀態</button>
+        <button onclick="stopMonitoring()">停止監控</button>
+        <div style="margin-top: 10px;">
+            <div>遊戲已開始: <span id="gameStarted" style="color: #f00;">false</span></div>
+            <div>房主ID: <span id="hostId" style="color: #0ff;">-</span></div>
+            <div>我是房主: <span id="isHost" style="color: #f00;">false</span></div>
+            <div>玩家數量: <span id="playerCount" style="color: #0ff;">0</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>步驟 3: 轉盤狀態監控</h2>
+        <button onclick="startWheelMonitoring()">開始監控轉盤狀態</button>
+        <button onclick="stopWheelMonitoring()">停止監控</button>
+        <div style="margin-top: 10px;">
+            <div>轉盤旋轉中: <span id="wheelSpinning" style="color: #f00;">false</span></div>
+            <div>轉盤已完成: <span id="wheelFinished" style="color: #f00;">false</span></div>
+            <div>隨機種子: <span id="spinSeed" style="color: #0ff;">-</span></div>
+            <div>中獎索引: <span id="winnerIndex" style="color: #0ff;">-</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>步驟 4: 手動操作（僅房主）</h2>
+        <button onclick="manualStartGame()">房主開始遊戲</button>
+        <button onclick="manualSpinWheel()">房主開始轉盤</button>
+    </div>
+
+    <div class="section">
+        <h2>📋 即時日誌</h2>
+        <button onclick="clearLog()">清除日誌</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let myPlayerId = null;
+        let roomMonitorInterval = null;
+        let wheelMonitorInterval = null;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const className = type;
+            logDiv.innerHTML += `<div class="${className}">[${time}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${time}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        async function joinRoom() {
+            const name = document.getElementById('playerName').value;
+            log(`正在加入房間，名稱: ${name}`, 'info');
+
+            try {
+                const response = await fetch('/api/room/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ player_name: name })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    myPlayerId = data.player_id;
+                    document.getElementById('myId').textContent = myPlayerId;
+                    log(`✅ 成功加入房間！玩家ID: ${myPlayerId}`, 'success');
+                    log(`   房主ID: ${data.room_state.host_id}`, 'info');
+                    log(`   我是房主: ${myPlayerId === data.room_state.host_id}`, 'info');
+                } else {
+                    log(`❌ 加入失敗: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkRoomState() {
+            try {
+                const response = await fetch('/api/room/state', {
+                    credentials: 'include'
+                });
+
+                const state = await response.json();
+
+                document.getElementById('gameStarted').textContent = state.game_started;
+                document.getElementById('gameStarted').style.color = state.game_started ? '#0f0' : '#f00';
+
+                document.getElementById('hostId').textContent = state.host_id || '-';
+
+                const isHost = myPlayerId && myPlayerId === state.host_id;
+                document.getElementById('isHost').textContent = isHost;
+                document.getElementById('isHost').style.color = isHost ? '#0f0' : '#f00';
+
+                document.getElementById('playerCount').textContent = state.player_count;
+
+                if (state.game_started) {
+                    log(`🎮 遊戲已開始！`, 'warning');
+                }
+
+                return state;
+            } catch (error) {
+                log(`❌ 檢查房間狀態錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkWheelState() {
+            try {
+                const response = await fetch('/api/wheel/state', {
+                    credentials: 'include'
+                });
+
+                const state = await response.json();
+
+                document.getElementById('wheelSpinning').textContent = state.wheel_spinning;
+                document.getElementById('wheelSpinning').style.color = state.wheel_spinning ? '#0f0' : '#f00';
+
+                document.getElementById('wheelFinished').textContent = state.wheel_finished;
+                document.getElementById('wheelFinished').style.color = state.wheel_finished ? '#0f0' : '#f00';
+
+                document.getElementById('spinSeed').textContent = state.spin_seed || '-';
+                document.getElementById('winnerIndex').textContent = state.winner_index !== null ? state.winner_index : '-';
+
+                if (state.wheel_spinning) {
+                    log(`🎰 轉盤正在旋轉！種子: ${state.spin_seed}, 中獎索引: ${state.winner_index}`, 'warning');
+                }
+
+                if (state.wheel_finished) {
+                    log(`✅ 轉盤已完成！玩家順序: ${JSON.stringify(state.player_order)}`, 'success');
+                }
+
+                return state;
+            } catch (error) {
+                log(`❌ 檢查轉盤狀態錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        function startMonitoring() {
+            log('🔄 開始監控房間狀態（每秒）', 'info');
+            checkRoomState();
+            roomMonitorInterval = setInterval(checkRoomState, 1000);
+        }
+
+        function stopMonitoring() {
+            if (roomMonitorInterval) {
+                clearInterval(roomMonitorInterval);
+                roomMonitorInterval = null;
+                log('⏸️ 停止監控房間狀態', 'info');
+            }
+        }
+
+        function startWheelMonitoring() {
+            log('🔄 開始監控轉盤狀態（每0.5秒）', 'info');
+            checkWheelState();
+            wheelMonitorInterval = setInterval(checkWheelState, 500);
+        }
+
+        function stopWheelMonitoring() {
+            if (wheelMonitorInterval) {
+                clearInterval(wheelMonitorInterval);
+                wheelMonitorInterval = null;
+                log('⏸️ 停止監控轉盤狀態', 'info');
+            }
+        }
+
+        async function manualStartGame() {
+            if (!myPlayerId) {
+                log('❌ 請先加入房間', 'error');
+                return;
+            }
+
+            log('🎮 發送開始遊戲請求...', 'info');
+
+            try {
+                const response = await fetch('/api/room/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ player_id: myPlayerId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log(`✅ 遊戲開始成功！`, 'success');
+                } else {
+                    log(`❌ 開始失敗: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function manualSpinWheel() {
+            if (!myPlayerId) {
+                log('❌ 請先加入房間', 'error');
+                return;
+            }
+
+            log('🎰 發送轉盤請求...', 'info');
+
+            try {
+                const response = await fetch('/api/wheel/spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ player_id: myPlayerId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log(`✅ 轉盤開始！種子: ${data.spin_seed}, 中獎索引: ${data.winner_index}`, 'success');
+                } else {
+                    log(`❌ 轉盤失敗: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        log('📱 除錯工具已載入', 'success');
+        log('👉 請依序執行：1.加入房間 → 2.開始監控 → 3.開始轉盤監控 → 4.操作', 'info');
+    </script>
+</body>
+</html>

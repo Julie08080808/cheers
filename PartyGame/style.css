@@ -1,0 +1,557 @@
+/* --- 全局設定 --- */
+:root {
+    --neon-blue: #00f2fe;
+    --neon-pink: #ff00cc;
+    --neon-purple: #bc13fe;
+    --neon-yellow: #ffe600;
+    --neon-green: #39ff14;
+    --dark-bg-gradient: linear-gradient(135deg, #1a0b2e, #3a0ca3, #240b36);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Microsoft JhengHei', sans-serif;
+    user-select: none;
+}
+
+body {
+    background-color: #000;
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+}
+
+.container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+.hidden { display: none !important; }
+
+/* --- 按鈕樣式優化 --- */
+.neon-btn {
+    background: linear-gradient(90deg, #ff00cc 0%, #bc13fe 100%);
+    border: 2px solid white;
+    padding: 12px 30px;
+    font-size: 1.3rem;
+    color: white;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--neon-pink);
+    transition: 0.3s;
+    margin-top: 20px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    white-space: nowrap; 
+}
+.neon-btn:hover { 
+    transform: scale(1.05); 
+    box-shadow: 0 0 30px var(--neon-pink), 0 0 10px var(--neon-purple); 
+}
+.neon-btn:disabled { filter: grayscale(1); cursor: not-allowed; transform: none; }
+
+.outline-btn {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.6);
+    color: rgba(255,255,255,0.8);
+    box-shadow: none;
+}
+.outline-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: #fff;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+}
+
+.uniform-btn {
+    min-width: 180px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* --- 第一頁：首頁 --- */
+.page-home { 
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    background: url('cover.jpg') no-repeat center center; background-size: cover; display: block; 
+}
+.page-home::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); pointer-events: none; }
+
+.home-title-group { 
+    position: absolute; top: 13%; right: 10%; text-align: center; z-index: 10; 
+    border: 3px solid var(--neon-pink); padding: 40px 55px; border-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 0 25px var(--neon-pink), inset 0 0 15px var(--neon-pink);
+}
+
+.main-title { 
+    font-size: 5rem; font-weight: 900; color: #fff; margin: 0; line-height: 1.1; 
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--neon-blue), 0 0 40px var(--neon-pink); 
+}
+.sub-title { 
+    font-size: 1.8rem; color: #fff; margin: 15px 0 0 0; letter-spacing: 3px; font-weight: bold; 
+    text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-pink); 
+}
+
+.btn-start-text { position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); z-index: 20; background: transparent; border: none; outline: none; cursor: pointer; font-size: 2.5rem; font-weight: 800; color: #fff; letter-spacing: 2px; font-family: 'Arial Black', sans-serif; text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--neon-pink), 0 0 40px var(--neon-pink); animation: breatheGlow 2s infinite alternate; transition: transform 0.2s; }
+.btn-start-text:hover { transform: translateX(-50%) scale(1.1); cursor: pointer; }
+@keyframes breatheGlow { 0% { opacity: 0.8; text-shadow: 0 0 10px #fff, 0 0 20px var(--neon-pink); } 100% { opacity: 1; text-shadow: 0 0 20px #fff, 0 0 40px var(--neon-pink), 0 0 60px #fff; } }
+
+/* --- 第二頁：模式選擇 --- */
+.page-mode { 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    background: radial-gradient(circle at center, #3a0ca3 0%, #1a0b2e 70%, #000 100%);
+}
+.mode-header { 
+    font-size: 3.5rem; margin-bottom: 60px; font-weight: 900; color: white; 
+    text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-pink), 0 0 40px var(--neon-purple); 
+    letter-spacing: 5px; 
+}
+.cards-wrapper { display: flex; gap: 50px; justify-content: center; flex-wrap: wrap; margin-bottom: 50px; }
+.mode-card {
+    width: 320px; height: 380px; background: rgba(40, 20, 60, 0.6); border-radius: 30px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    cursor: pointer; position: relative; padding: 30px; 
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 2px solid rgba(188, 19, 254, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+}
+.mode-card:hover { 
+    transform: translateY(-15px) scale(1.05); background: rgba(188, 19, 254, 0.2); 
+    border-color: var(--neon-pink); box-shadow: 0 0 30px var(--neon-pink), 0 0 60px var(--neon-purple), inset 0 0 20px rgba(255, 0, 204, 0.3); 
+}
+.card-title { font-size: 2.4rem; font-weight: bold; margin-bottom: 20px; color: white; transition: 0.3s; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+.mode-card:hover .card-title { text-shadow: 0 0 15px var(--neon-pink), 0 0 30px white; }
+.card-desc { font-size: 1.2rem; color: #e0d0ff; opacity: 0.8; transition: 0.3s; line-height: 1.6; }
+.mode-card:hover .card-desc { opacity: 1; color: white; }
+
+/* --- 其他頁面 --- */
+.page-family, .page-game { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: var(--dark-bg-gradient); position: absolute; top: 0; left: 0; }
+.input-section { margin-bottom: 30px; display: flex; gap: 15px; align-items: center; }
+.input-box { background: rgba(255,255,255,0.1); border: 2px solid var(--neon-blue); color: white; padding: 10px 20px; font-size: 1.5rem; border-radius: 10px; width: 150px; text-align: center; }
+.button-group { display: flex; gap: 30px; margin-top: 30px; justify-content: center; }
+
+.game-layout { display: flex; align-items: center; justify-content: center; gap: 80px; width: 90%; max-width: 1000px; }
+.wheel-wrapper { position: relative; width: 400px; height: 400px; }
+#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+.pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid var(--neon-pink); z-index: 10; }
+.result-box { width: 300px; height: 400px; background: rgba(20, 20, 40, 0.6); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; overflow-y: auto; }
+.result-title { text-align: center; font-size: 1.8rem; margin-bottom: 20px; color: var(--neon-blue); border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+.order-list { list-style: none; padding: 0; }
+.order-item { font-size: 1.5rem; margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; justify-content: space-between; }
+
+.game-main-area { width: 100%; max-width: 1200px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; }
+.top-info-bar { display: flex; justify-content: space-between; align-items: flex-start; }
+.round-display-container { display: flex; align-items: center; gap: 15px; }
+.round-display { font-size: 2.5rem; font-weight: bold; text-shadow: 0 0 10px var(--neon-blue); display: inline-block; }
+.base-wine-box { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px 25px; border: 1px solid rgba(255,255,255,0.3); display: flex; flex-direction: column; align-items: center; min-width: 120px; position: relative; z-index: 50; }
+.wine-stack-container { display: flex; flex-direction: column; align-items: center; gap: 5px; position: absolute; top: 100%; left: 0; width: 100%; padding-top: 10px; }
+.stack-circle { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px currentColor; animation: dropIn 0.3s ease-out; flex-shrink: 0; }
+.base-circle { width: 60px; height: 60px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 15px currentColor; z-index: 2; position: relative; }
+
+/* 基底酒顏色樣式 */
+.base-red { background-color: #ff4d4d; box-shadow: 0 0 15px #ff0000; }
+.base-blue { background-color: #4d4dff; box-shadow: 0 0 15px #0000ff; }
+.base-yellow { background-color: #ffcc00; box-shadow: 0 0 15px #ffa500; }
+.base-green { background-color: #39ff14; box-shadow: 0 0 15px #00cc00; }
+
+@keyframes dropIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.dice-section { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 30px; }
+.dice-container { display: flex; gap: 40px; }
+.die { width: 100px; height: 100px; background: white; border-radius: 15px; box-shadow: 0 0 20px rgba(255,255,255,0.5) inset, 0 0 20px var(--neon-blue); display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 8px; gap: 4px; }
+.dot { background-color: #333; border-radius: 50%; align-self: center; justify-self: center; width: 100%; height: 100%; visibility: hidden; }
+.die[data-value="1"] .dot:nth-child(5) { visibility: visible; background: #ff0055; width: 120%; height: 120%; }
+.die[data-value="2"] .dot:nth-child(1), .die[data-value="2"] .dot:nth-child(9) { visibility: visible; }
+.die[data-value="3"] .dot:nth-child(1), .die[data-value="3"] .dot:nth-child(5), .die[data-value="3"] .dot:nth-child(9) { visibility: visible; }
+.die[data-value="4"] .dot:nth-child(1), .die[data-value="4"] .dot:nth-child(3), .die[data-value="4"] .dot:nth-child(7), .die[data-value="4"] .dot:nth-child(9) { visibility: visible; }
+.die[data-value="5"] .dot:nth-child(1), .die[data-value="5"] .dot:nth-child(3), .die[data-value="5"] .dot:nth-child(5), .die[data-value="5"] .dot:nth-child(7), .die[data-value="5"] .dot:nth-child(9) { visibility: visible; }
+.die[data-value="6"] .dot:nth-child(1), .die[data-value="6"] .dot:nth-child(3), .die[data-value="6"] .dot:nth-child(4), .die[data-value="6"] .dot:nth-child(6), .die[data-value="6"] .dot:nth-child(7), .die[data-value="6"] .dot:nth-child(9) { visibility: visible; }
+.shake { animation: shake 0.5s infinite; }
+@keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(10deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(0deg); } }
+
+.scoreboard-section { width: 100%; height: 180px; background: rgba(0,0,0,0.5); border-top: 2px solid var(--neon-blue); display: flex; gap: 15px; overflow-x: auto; padding: 15px; align-items: center; }
+.player-card { min-width: 120px; height: 140px; background: rgba(255,255,255,0.1); border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; flex-shrink: 0; }
+.player-card.active { border: 2px solid var(--neon-yellow); background: rgba(255, 230, 0, 0.1); transform: scale(1.1); box-shadow: 0 0 20px var(--neon-yellow); }
+.p-name { font-size: 1.5rem; font-weight: bold; margin: 5px 0; }
+.p-score { font-size: 2rem; color: var(--neon-blue); font-weight: 900; }
+
+.msg-popup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: var(--neon-yellow); font-weight: bold; text-shadow: 0 0 20px red; pointer-events: none; opacity: 0; transition: opacity 0.5s; z-index: 100; width: 80%; text-align: center; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: flex; justify-content: center; align-items: center; }
+.modal-content { background: #1a0b2e; border: 2px solid var(--neon-pink); border-radius: 20px; padding: 30px; width: 90%; max-width: 600px; text-align: center; box-shadow: 0 0 40px var(--neon-pink); max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 2rem; color: var(--neon-yellow); margin-bottom: 20px; font-weight: bold; }
+.option-btn { display: block; width: 100%; padding: 15px; margin: 10px 0; background: rgba(255,255,255,0.1); border: 1px solid var(--neon-blue); color: white; font-size: 1.2rem; cursor: pointer; border-radius: 10px; transition: 0.2s; }
+.option-btn:hover { background: var(--neon-blue); color: black; }
+.color-choice-btn { width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; display: inline-block; margin: 10px; cursor: pointer; box-shadow: 0 0 10px currentColor; transition: transform 0.2s; }
+.color-choice-btn:hover { transform: scale(1.2); }
+
+/* ========== 響應式設計 - 手機版 ========== */
+
+/* 平板 (769px - 1024px) - 不影響桌面版 */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    /* === 首頁平板優化 === */
+    .home-title-group {
+        padding: 35px 45px;
+        top: 12%;
+        right: 8%;
+    }
+
+    .main-title {
+        font-size: 4rem;
+    }
+
+    .sub-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-start-text {
+        font-size: 2.2rem;
+    }
+
+    .mode-header { font-size: 3rem; }
+    .game-layout { gap: 40px; }
+}
+
+/* 手機版 (小於 768px) */
+@media screen and (max-width: 768px) {
+    body { overflow-y: auto; height: auto; min-height: 100vh; }
+    .container { height: auto; min-height: 100vh; overflow-y: auto; }
+
+    /* === 首頁響應式 === */
+    .page-home {
+        height: auto;
+        min-height: 100vh;
+        background-position: center center;
+        background-attachment: scroll;
+        position: relative;
+    }
+
+    .page-home::after {
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    }
+
+    .home-title-group {
+        position: absolute;
+        top: 15% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        max-width: 400px;
+        padding: 20px 25px !important;
+        border-radius: 15px !important;
+        border-width: 2px !important;
+        box-shadow: 0 0 20px var(--neon-pink), inset 0 0 10px var(--neon-pink) !important;
+    }
+
+    .main-title {
+        font-size: 2.5rem;
+        text-shadow: 0 0 3px #fff, 0 0 8px var(--neon-blue), 0 0 15px var(--neon-pink);
+        line-height: 1.2;
+    }
+
+    .sub-title {
+        font-size: 1.1rem;
+        margin: 8px 0 0 0;
+        letter-spacing: 2px;
+    }
+
+    .btn-start-text {
+        bottom: 10%;
+        font-size: 1.6rem;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        padding: 10px;
+    }
+    .btn-start-text:hover { transform: translateX(-50%) scale(1.05); }
+
+    /* === 模式選擇頁響應式 === */
+    .page-mode { padding: 20px; }
+
+    .mode-header {
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        letter-spacing: 3px;
+    }
+
+    .cards-wrapper {
+        flex-direction: column;
+        gap: 25px;
+        margin-bottom: 30px;
+        width: 100%;
+    }
+
+    .mode-card {
+        width: 100%;
+        max-width: 350px;
+        height: 280px;
+        border-radius: 20px;
+        padding: 25px;
+    }
+
+    .mode-card:hover {
+        transform: translateY(-8px) scale(1.02);
+    }
+
+    .card-title { font-size: 2rem; margin-bottom: 15px; }
+    .card-desc { font-size: 1.1rem; line-height: 1.5; }
+
+    .neon-btn {
+        padding: 10px 25px;
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+
+    .uniform-btn { min-width: 140px; }
+
+    /* === 設定頁響應式 === */
+    .page-family {
+        height: auto;
+        min-height: 100vh;
+        padding: 20px;
+        justify-content: flex-start;
+        padding-top: 40px;
+    }
+
+    .input-section {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .input-section span { font-size: 1.2rem !important; }
+
+    .input-box {
+        width: 100%;
+        max-width: 200px;
+        font-size: 1.2rem;
+        padding: 8px 15px;
+    }
+
+    .game-layout {
+        flex-direction: column;
+        gap: 30px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .wheel-wrapper {
+        width: 280px;
+        height: 280px;
+    }
+
+    .pointer {
+        top: -10px;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 30px solid var(--neon-pink);
+    }
+
+    .result-box {
+        width: 100%;
+        max-width: 350px;
+        height: 300px;
+        padding: 15px;
+    }
+
+    .result-title { font-size: 1.5rem; margin-bottom: 15px; }
+    .order-item { font-size: 1.2rem; margin-bottom: 10px; padding: 8px; }
+
+    .button-group {
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .button-group .neon-btn { width: 100%; }
+
+    /* === 遊戲頁響應式 === */
+    .page-game {
+        height: auto;
+        min-height: 100vh;
+        padding: 15px;
+    }
+
+    .game-main-area {
+        padding: 10px;
+        max-width: 100%;
+        height: auto;
+        min-height: calc(100vh - 30px);
+    }
+
+    .top-info-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .round-display-container {
+        gap: 10px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .round-display {
+        font-size: 1.8rem;
+    }
+
+    .base-wine-box {
+        padding: 12px 20px;
+        min-width: 100px;
+        position: relative;
+    }
+
+    .base-wine-box > div:first-child { font-size: 1rem; }
+
+    .base-circle {
+        width: 50px;
+        height: 50px;
+    }
+
+    .wine-stack-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding-top: 10px;
+        position: relative;
+        top: auto;
+        left: auto;
+        width: auto;
+        justify-content: center;
+    }
+
+    .stack-circle {
+        width: 40px;
+        height: 40px;
+    }
+
+    .dice-section {
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    .dice-container {
+        gap: 25px;
+    }
+
+    .die {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        padding: 6px;
+        gap: 3px;
+    }
+
+    .die[data-value="1"] .dot:nth-child(5) { width: 110%; height: 110%; }
+
+    .neon-btn { font-size: 1.2rem; padding: 10px 25px; }
+
+    #actionHint {
+        font-size: 0.95rem;
+        margin-top: 8px;
+    }
+
+    .msg-popup {
+        font-size: 2rem;
+        width: 90%;
+    }
+
+    .scoreboard-section {
+        height: 150px;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .player-card {
+        min-width: 100px;
+        height: 120px;
+    }
+
+    .player-card.active { transform: scale(1.05); }
+
+    .p-name { font-size: 1.2rem; }
+    .p-score { font-size: 1.6rem; }
+
+    /* === Modal 響應式 === */
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+        max-height: 85vh;
+    }
+
+    .modal-title {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+    }
+
+    .modal-body { font-size: 1rem; }
+
+    .option-btn {
+        padding: 12px;
+        margin: 8px 0;
+        font-size: 1.1rem;
+    }
+
+    .color-choice-btn {
+        width: 50px;
+        height: 50px;
+        margin: 8px;
+        border: 2px solid white;
+    }
+
+    .color-choice-btn:hover { transform: scale(1.1); }
+}
+
+/* 超小型手機 (小於 480px) */
+@media screen and (max-width: 480px) {
+    /* === 首頁超小螢幕優化 === */
+    .home-title-group {
+        top: 12% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 85% !important;
+        padding: 18px 20px !important;
+    }
+
+    .main-title {
+        font-size: 2rem;
+        line-height: 1.1;
+    }
+
+    .sub-title {
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+        margin: 6px 0 0 0;
+    }
+
+    .btn-start-text {
+        font-size: 1.4rem;
+        bottom: 8%;
+        padding: 8px;
+    }
+
+    .mode-header { font-size: 1.8rem; letter-spacing: 2px; }
+    .mode-card { height: 240px; padding: 20px; }
+    .card-title { font-size: 1.6rem; }
+    .card-desc { font-size: 1rem; }
+
+    .wheel-wrapper { width: 240px; height: 240px; }
+    .result-box { height: 250px; }
+
+    .die { width: 70px; height: 70px; padding: 5px; }
+    .dice-container { gap: 15px; }
+
+    .round-display { font-size: 1.5rem; }
+    .msg-popup { font-size: 1.6rem; }
+
+    .neon-btn { font-size: 1rem; padding: 8px 20px; }
+    .uniform-btn { min-width: 120px; }
+}

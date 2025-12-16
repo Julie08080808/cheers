@@ -1,0 +1,11 @@
+services:
+  party-game:
+    build: .
+    image: party-game:latest
+    container_name: party-game
+    ports:
+      - "8000:8000"
+    devices:
+      - /dev/gpiomem:/dev/gpiomem
+    privileged: true
+    restart: unless-stopped

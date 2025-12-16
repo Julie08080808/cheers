@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房間功能測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #ff00cc;
+            color: white;
+        }
+        button:hover {
+            background: #cc0099;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>房間功能測試頁面</h1>
+
+    <div class="test-section">
+        <h2>步驟 1: 加入房間</h2>
+        <input type="text" id="playerName" placeholder="輸入玩家名稱" value="測試玩家1">
+        <button onclick="testJoinRoom()">加入房間</button>
+        <div id="joinResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>步驟 2: 查看房間狀態</h2>
+        <button onclick="testRoomState()">獲取房間狀態</button>
+        <div id="stateResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>步驟 3: 房主開始遊戲</h2>
+        <button onclick="testStartGame()">房主開始遊戲</button>
+        <div id="startResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>步驟 4: 重置房間</h2>
+        <button onclick="testReset()">重置房間</button>
+        <div id="resetResult" class="result"></div>
+    </div>
+
+    <script>
+        let myPlayerId = null;
+
+        async function testJoinRoom() {
+            const playerName = document.getElementById('playerName').value;
+            const resultDiv = document.getElementById('joinResult');
+            resultDiv.innerHTML = '測試中...';
+
+            try {
+                const response = await fetch('/api/room/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ player_name: playerName })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    myPlayerId = data.player_id;
+                    resultDiv.innerHTML = `<span class="success">✅ 成功加入房間</span>\n玩家ID: ${data.player_id}\n是否為房主: ${data.room_state.host_id === data.player_id}\n目前人數: ${data.room_state.player_count}\n可以開始: ${data.room_state.can_start}\n\n完整回應:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ 加入失敗</span>\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ 錯誤</span>\n${error.message}`;
+            }
+        }
+
+        async function testRoomState() {
+            const resultDiv = document.getElementById('stateResult');
+            resultDiv.innerHTML = '測試中...';
+
+            try {
+                const response = await fetch('/api/room/state', {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                resultDiv.innerHTML = `<span class="success">✅ 獲取成功</span>\n目前人數: ${data.player_count}\n我的ID: ${data.my_player_id}\n是否在房間: ${data.is_in_room}\n是否為房主: ${data.is_host}\n可以開始: ${data.can_start}\n\n玩家列表:\n${data.players.map((p, i) => `${i+1}. ${p.player_name} ${p.is_host ? '👑' : ''}`).join('\n')}\n\n完整回應:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ 錯誤</span>\n${error.message}`;
+            }
+        }
+
+        async function testStartGame() {
+            const resultDiv = document.getElementById('startResult');
+
+            if (!myPlayerId) {
+                resultDiv.innerHTML = '<span class="error">❌ 請先加入房間</span>';
+                return;
+            }
+
+            resultDiv.innerHTML = '測試中...';
+
+            try {
+                const response = await fetch('/api/room/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ player_id: myPlayerId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<span class="success">✅ 遊戲開始成功</span>\n\n玩家順序:\n${data.player_order.map(p => `${p.order}. ${p.player_name}`).join('\n')}\n\n完整回應:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ 開始失敗</span>\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ 錯誤</span>\n${error.message}`;
+            }
+        }
+
+        async function testReset() {
+            const resultDiv = document.getElementById('resetResult');
+            resultDiv.innerHTML = '測試中...';
+
+            try {
+                const response = await fetch('/api/room/reset', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    myPlayerId = null;
+                    resultDiv.innerHTML = `<span class="success">✅ 房間已重置</span>\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ 重置失敗</span>\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ 錯誤</span>\n${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

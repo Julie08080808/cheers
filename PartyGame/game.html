@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>醉加損友 - 遊戲中</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="page-game">
+            <div class="game-main-area">
+                <div class="top-info-bar">
+                    <div class="round-display-container">
+                        <div class="round-display">
+                            <span id="roundStatusText">ROUND 1/5</span>
+                        </div>
+                        <div style="font-size:1.5rem; cursor:pointer; border:2px solid var(--neon-pink); color:var(--neon-pink); border-radius:50%; width:36px; height:36px; text-align:center; line-height:32px; font-weight:bold; box-shadow: 0 0 10px var(--neon-pink); flex-shrink: 0;" onclick="showRules()">?</div>
+                    </div>
+                    <div class="base-wine-box">
+                        <div style="font-size: 1.2rem;">本局基底</div>
+                        <div id="baseColorCircle" class="base-circle"></div>
+                        <div id="wineStack" class="wine-stack-container"></div>
+                    </div>
+                </div>
+                <div class="dice-section">
+                    <div id="msgPopup" class="msg-popup"></div>
+                    <div class="dice-container">
+                        <div class="die" id="die1" data-value="1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="die" id="die2" data-value="6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                    <button id="rollBtn" class="neon-btn" onclick="rollDice()">擲骰子</button>
+                    <div id="actionHint" style="color: #ccc; margin-top: 10px;">輪到 <span id="turnPlayerName" style="color: var(--neon-yellow)"></span></div>
+                </div>
+                <div id="scoreboard" class="scoreboard-section"></div>
+            </div>
+        </div>
+    </div>
+    <div id="gameModal" class="modal-overlay hidden"><div class="modal-content"><div id="modalTitle" class="modal-title">標題</div><div id="modalBody" class="modal-body">內容</div><div id="modalActions"></div></div></div>
+    <script src="script.js"></script>
+</body>
+</html>

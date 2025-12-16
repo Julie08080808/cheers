@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>醉加損友 - 選擇模式</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="page-mode">
+            <h1 class="mode-header">選擇模式</h1>
+            <div class="cards-wrapper">
+                <div class="mode-card" onclick="initFamilyMode()">
+                    <div class="card-title">闔家歡模式</div>
+                    <div class="card-desc">積分制<br>5回合結算<br>適合輕鬆玩家</div>
+                </div>
+                <div class="mode-card" onclick="initAlcoholicMode()">
+                    <div class="card-title">無乃酒鬼模式</div>
+                    <div class="card-desc">直球對決<br>輸者全乾<br>膽小勿入</div>
+                </div>
+            </div>
+            <button class="neon-btn outline-btn uniform-btn" style="margin-top:50px;" onclick="window.location.href='/'">返回首頁</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
