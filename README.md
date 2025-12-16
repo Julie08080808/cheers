@@ -30,7 +30,7 @@
 - 蠟筆
 - 標籤紙
 
-## 硬體架構
+## Hardware architecture 硬體架構
 硬體架構圖
 (待放)
 硬體腳位對應
@@ -47,7 +47,7 @@
 
 ## Existing Library/Software 遊戲列表與技術概覽
 
-## 功能架構圖
+## Functional Map 功能架構圖
 
 <!-- Which libraries do you use while you implement the project -->
 模式介紹
@@ -195,7 +195,7 @@
 
 <!-- What kind of knowledge did you use on this project? -->
 
-## 架構
+## Framework 架構
 
 實體 & 網絡架構
 ```text
@@ -215,7 +215,7 @@
                  [ 多顆幫浦 + 酒桶 ]
 ```
 
-## Installation
+## Installation 安裝
 
 <!-- How do the user install with your project? -->
 
@@ -223,7 +223,7 @@
 
 <!-- How to use your project -->
 
-###  遊戲流程 
+### 遊戲流程 
 本遊戲支援 2 至 6 人遊玩，包含「闔家歡」與「無乃酒鬼」兩種模式。以下為完整的遊戲互動流程：
 ### 1. 準備階段
 1. **進入遊戲**：在主畫面點擊 `Game Start`。
@@ -248,7 +248,7 @@
 | ** 無乃酒鬼模式** | 當任一玩家累積喝滿 **3 杯**，遊戲立即結束。 |
 
 
-## 遇到的困難
+## Difficulties 遇到的困難
 
 - 在電源開啟狀態下，不小心將電源供應器與 L298N 馬達驅動器疊放接觸，造成瞬間短路產生火花，導致連接線燒斷，好險設備未受損。
 - 在測試硬體設備時，第三台幫浦無法運作，排查後發現是線路未銜接好，調整後恢復了運作。
@@ -256,7 +256,7 @@
 - 
 
 
-## 未來展望
+## Vision for the future 未來展望
 
 ## Job Assignment 分工表
 
