@@ -53,6 +53,7 @@ class GameRoom:
         self.current_question = None  # 當前題目
         self.current_answer = None  # 當前答案
         self.last_action = None  # 最後的動作（用於顯示訊息）
+        self.wine_stack: List[str] = []  # 加入的酒堆疊 (顏色列表)
 
         # 積分管理
         self.player_scores: dict[str, int] = {}  # player_id -> score
@@ -219,6 +220,7 @@ class GameRoom:
         self.current_question = None
         self.current_answer = None
         self.last_action = None
+        self.wine_stack.clear()
         # 清空積分
         self.player_scores.clear()
 
@@ -353,6 +355,7 @@ class GameRoom:
             "current_question": self.current_question,
             "current_answer": self.current_answer,
             "last_action": self.last_action,
+            "wine_stack": self.wine_stack,
             # 玩家積分（所有玩家看到相同積分）
             "player_scores": self.player_scores
         }
@@ -681,11 +684,32 @@ def set_base_wine(request: SetBaseWineRequest):
         raise HTTPException(status_code=400, detail="遊戲尚未開始")
 
     game_room.base_wine_color = request.color
-    print(f"🍷 設定基底酒: {request.color}")
+    game_room.wine_stack.clear()  # 清空酒堆疊
+    print(f"🍷 設定基底酒: {request.color}，清空酒堆疊")
 
     return {
         "success": True,
-        "base_wine_color": game_room.base_wine_color
+        "base_wine_color": game_room.base_wine_color,
+        "wine_stack": game_room.wine_stack
+    }
+
+class AddWineRequest(BaseModel):
+    player_id: str
+    color: str
+
+@app.post("/api/game/add-wine")
+def add_wine_to_stack(request: AddWineRequest):
+    """添加酒到堆疊（所有玩家看到相同的酒堆疊）"""
+    if not game_room.game_started:
+        raise HTTPException(status_code=400, detail="遊戲尚未開始")
+
+    game_room.wine_stack.append(request.color)
+    print(f"🍷 添加酒到堆疊: {request.color}，目前堆疊: {game_room.wine_stack}")
+
+    return {
+        "success": True,
+        "color": request.color,
+        "wine_stack": game_room.wine_stack
     }
 
 @app.post("/api/game/set-question")
