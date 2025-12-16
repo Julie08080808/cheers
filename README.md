@@ -49,6 +49,8 @@
 
 ## Functional Map 功能架構圖
 
+<img width="902" height="1844" alt="功能架構" src="https://github.com/user-attachments/assets/950bb796-d1e3-4992-bb9f-da825a7a8877" />
+
 <!-- Which libraries do you use while you implement the project -->
 模式介紹
 | 項目 | 酒鬼模式 | 闔家歡模式 |
