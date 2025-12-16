@@ -56,6 +56,7 @@ class GameRoom:
         self.current_question = None  # 當前題目
         self.current_answer = None  # 當前答案
         self.last_action = None  # 最後的動作（用於顯示訊息）
+        self.current_opponent = None  # 當前對手名字（用於黑白切/對決）
         self.wine_stack: List[str] = []  # 加入的酒堆疊 (顏色列表)
 
         # 積分管理
@@ -226,6 +227,7 @@ class GameRoom:
         self.current_question = None
         self.current_answer = None
         self.last_action = None
+        self.current_opponent = None
         self.wine_stack.clear()
         # 清空積分
         self.player_scores.clear()
@@ -364,6 +366,8 @@ class GameRoom:
             "current_question": self.current_question,
             "current_answer": self.current_answer,
             "last_action": self.last_action,
+            "current_opponent": self.current_opponent,
+            "opponent_name": self.current_opponent,
             "wine_stack": self.wine_stack,
             # 玩家積分（所有玩家看到相同積分）
             "player_scores": self.player_scores
@@ -680,10 +684,21 @@ def roll_dice(request: RollDiceRequest):
 
     print(f"🎲 玩家擲骰子: {request.dice1}, {request.dice2}")
 
+    # 預先隨機選擇一個對手（為了黑白切/對決模式），避免前端顯示 undefined
+    # 這樣即使前端沒有呼叫 pick-opponent，也能顯示一個隨機對手
+    candidates = [p for pid, p in game_room.players.items() if pid != request.player_id]
+    if candidates:
+        opponent = random.choice(candidates)
+        game_room.current_opponent = opponent.player_name
+    else:
+        game_room.current_opponent = "無其他玩家"
+
     return {
         "success": True,
         "dice_values": game_room.dice_values,
-        "sum": request.dice1 + request.dice2
+        "sum": request.dice1 + request.dice2,
+        "current_opponent": game_room.current_opponent,
+        "opponent_name": game_room.current_opponent
     }
 
 @app.post("/api/game/set-base-wine")
@@ -791,13 +806,20 @@ def update_score(request: UpdateScoreRequest):
     if game_room.game_mode == 'drunk' and new_score >= 3:
         game_room.game_ended = True
         player_name = game_room.players[request.player_id].player_name if request.player_id in game_room.players else "玩家"
+        
+        # 找出贏家（除了輸家以外的所有人）和輸家
+        winners = []
+        losers = [{"player_id": request.player_id, "player_name": player_name, "score": new_score}]
+        
+        for pid, p in game_room.players.items():
+            if pid != request.player_id:
+                score = game_room.player_scores.get(pid, 0)
+                winners.append({"player_id": pid, "player_name": p.player_name, "score": score})
+
         game_room.game_result = {
             "mode": "drunk",
-            "loser": {
-                "player_id": request.player_id,
-                "player_name": player_name,
-                "score": new_score
-            },
+            "winners": winners,
+            "losers": losers,
             "message": f"{player_name} 已經喝了 3 杯！遊戲結束！"
         }
         print(f"🏁 遊戲結束！{player_name} 喝了 {new_score} 杯")
@@ -866,6 +888,40 @@ def increment_round(request: IncrementRoundRequest):
             "message": "酒鬼模式不使用回合制"
         }
 
+class PickOpponentRequest(BaseModel):
+    player_id: str
+
+@app.post("/api/game/pick-opponent")
+def pick_opponent(request: PickOpponentRequest):
+    """隨機選擇一個對手（用於黑白切/對決），解決顯示 undefined 的問題"""
+    if not game_room.game_started:
+        raise HTTPException(status_code=400, detail="遊戲尚未開始")
+
+    # 取得當前玩家名字
+    current_player_name = game_room.players[request.player_id].player_name if request.player_id in game_room.players else "玩家"
+
+    # 篩選出除了自己以外的潛在對手
+    candidates = [p for pid, p in game_room.players.items() if pid != request.player_id]
+
+    if candidates:
+        # 隨機選擇一位對手
+        opponent = random.choice(candidates)
+        game_room.current_opponent = opponent.player_name
+        
+        # 更新最後動作，讓所有人都看到
+        game_room.last_action = f"{current_player_name} 的對手是 {opponent.player_name}！"
+        print(f"⚔️ 對決配對: {current_player_name} vs {opponent.player_name}")
+    else:
+        game_room.current_opponent = "無其他玩家"
+        game_room.last_action = "沒有其他玩家可以對戰！"
+
+    return {
+        "success": True,
+        "opponent_name": game_room.current_opponent,
+        "current_opponent": game_room.current_opponent,
+        "message": f"對手是 {game_room.current_opponent}"
+    }
+
 # =========================================================
 # 遊戲事件（唯一推薦的「正式遊戲流程」入口）
 # =========================================================
@@ -897,6 +953,52 @@ def _decision_to_actions(decision: Dict[str, Any]) -> List[Dict[str, float]]:
         return [{"pump_id": int(decision["pump_id"]), "duration": float(decision["duration"])}]
 
     return []
+
+
+@app.post("/api/game/reset")
+def reset_game():
+    """重置遊戲狀態，準備開始新的一局"""
+    try:
+        # 重置房間狀態（包括回合數、積分、遊戲記錄等）
+        # 但保留玩家列表，讓同一批玩家可以繼續玩
+        game_room.game_started = False
+        game_room.player_order = []
+        game_room.current_turn_index = 0
+        game_room.current_round = 1  # 回合數重置為 1
+        game_room.game_ended = False
+        game_room.game_result = None
+        
+        # 重置轉盤狀態
+        game_room.wheel_spinning = False
+        game_room.wheel_finished = False
+        game_room.winner_index = None
+        game_room.spin_seed = None
+        game_room.wheel_candidates = []
+        
+        # 重置遊戲共享狀態
+        game_room.base_wine_color = None
+        game_room.base_pump_id = None
+        game_room.dice_values = [1, 1]
+        game_room.current_question = None
+        game_room.current_answer = None
+        game_room.last_action = None
+        game_room.current_opponent = None
+        game_room.wine_stack.clear()
+        
+        # 重置所有玩家的積分為 0
+        for player_id in game_room.players.keys():
+            game_room.player_scores[player_id] = 0
+        
+        print("🔄 遊戲狀態已重置，準備開始新的一局")
+        
+        return {
+            "success": True,
+            "message": "遊戲狀態已重置",
+            "current_round": game_room.current_round
+        }
+    except Exception as e:
+        print(f"❌ 重置遊戲失敗: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/game/event")
 def game_event(request: GameEventRequest):
