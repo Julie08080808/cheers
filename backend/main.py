@@ -54,6 +54,9 @@ class GameRoom:
         self.current_answer = None  # 當前答案
         self.last_action = None  # 最後的動作（用於顯示訊息）
 
+        # 積分管理
+        self.player_scores: dict[str, int] = {}  # player_id -> score
+
     def add_player(self, player_name: str) -> tuple[bool, str, str, str]:
         """加入玩家，返回 (成功, player_id, 訊息, 狀態)"""
         player_id = str(uuid.uuid4())
@@ -68,6 +71,9 @@ class GameRoom:
 
         # 房間未滿，直接加入
         self.players[player_id] = player
+
+        # 初始化玩家積分為 0
+        self.player_scores[player_id] = 0
 
         # 第一個加入的玩家成為房主
         if self.host_id is None:
@@ -84,6 +90,9 @@ class GameRoom:
             was_host = (player_id == self.host_id)
 
             del self.players[player_id]
+            # 清除玩家積分
+            if player_id in self.player_scores:
+                del self.player_scores[player_id]
             print(f"👋 玩家離開: {player_name} (ID: {player_id})")
 
             # 如果房主離開，將房主轉移給下一個玩家
@@ -103,6 +112,8 @@ class GameRoom:
             if self.waiting_queue:
                 next_player = self.waiting_queue.pop(0)
                 self.players[next_player.player_id] = next_player
+                # 初始化新玩家積分為 0
+                self.player_scores[next_player.player_id] = 0
                 print(f"⬆️ 排隊玩家進入房間: {next_player.player_name} (ID: {next_player.player_id})")
 
         # 檢查是否在排隊列表中
@@ -208,6 +219,8 @@ class GameRoom:
         self.current_question = None
         self.current_answer = None
         self.last_action = None
+        # 清空積分
+        self.player_scores.clear()
 
     def get_current_player_id(self) -> Optional[str]:
         """獲取當前輪到的玩家ID"""
@@ -222,6 +235,24 @@ class GameRoom:
         if not self.game_started or not self.player_order:
             return
         self.current_turn_index = (self.current_turn_index + 1) % len(self.player_order)
+
+    def update_score(self, player_id: str, delta: int) -> tuple[bool, int, str]:
+        """更新玩家積分，返回 (成功, 新積分, 訊息)"""
+        if player_id not in self.players:
+            return False, 0, "玩家不存在"
+
+        # 初始化積分（如果還沒有的話）
+        if player_id not in self.player_scores:
+            self.player_scores[player_id] = 0
+
+        # 更新積分
+        self.player_scores[player_id] += delta
+        new_score = self.player_scores[player_id]
+
+        player_name = self.players[player_id].player_name
+        print(f"📊 積分更新: {player_name} ({delta:+d}) → {new_score}")
+
+        return True, new_score, "積分更新成功"
 
     def start_wheel_spin(self) -> tuple[bool, str, int]:
         """開始轉盤（只有房主可以呼叫）"""
@@ -321,7 +352,9 @@ class GameRoom:
             "dice_values": self.dice_values,
             "current_question": self.current_question,
             "current_answer": self.current_answer,
-            "last_action": self.last_action
+            "last_action": self.last_action,
+            # 玩家積分（所有玩家看到相同積分）
+            "player_scores": self.player_scores
         }
 
 # 全域遊戲房間實例
@@ -671,6 +704,56 @@ def set_question(request: SetQuestionRequest):
         "question": game_room.current_question,
         "answer": game_room.current_answer
     }
+
+class UpdateScoreRequest(BaseModel):
+    player_id: str
+    score_delta: int
+
+class IncrementRoundRequest(BaseModel):
+    player_id: str
+    new_round: int
+
+@app.post("/api/game/update-score")
+def update_score(request: UpdateScoreRequest):
+    """更新玩家積分（同步到所有玩家）"""
+    if not game_room.game_started:
+        raise HTTPException(status_code=400, detail="遊戲尚未開始")
+
+    # 更新積分
+    success, new_score, message = game_room.update_score(request.player_id, request.score_delta)
+
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+
+    return {
+        "success": True,
+        "player_id": request.player_id,
+        "score_delta": request.score_delta,
+        "new_score": new_score,
+        "message": message
+    }
+
+@app.post("/api/game/increment-round")
+def increment_round(request: IncrementRoundRequest):
+    """增加回合數（闔家歡模式專用）"""
+    if not game_room.game_started:
+        raise HTTPException(status_code=400, detail="遊戲尚未開始")
+
+    # 只在闔家歡模式更新回合
+    if game_room.game_mode == 'family':
+        game_room.current_round = request.new_round
+        print(f"🍺 回合更新: {request.new_round}")
+
+        return {
+            "success": True,
+            "current_round": game_room.current_round,
+            "message": f"回合已更新為 {game_room.current_round}"
+        }
+    else:
+        return {
+            "success": False,
+            "message": "酒鬼模式不使用回合制"
+        }
 
 # =========================================================
 # 遊戲事件（唯一推薦的「正式遊戲流程」入口）
