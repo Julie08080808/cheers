@@ -1,4 +1,4 @@
-# Drunk & Dangerous Friends
+# Drunk & Dangerous Friends🍻
 ：I’m Shot Done！：（
 
 ## Concept Development 專案簡介
@@ -202,7 +202,30 @@
 
 ## Knowledge from Lecture
 
-<!-- What kind of knowledge did you use on this project? -->
+- Raspberry Pi 環境設定
+
+- Raspberry Pi GPIO 輸出控制
+
+  *透過 GPIO 腳位輸出控制訊號，搭配 L298N / Relay 板驅動幫浦*
+
+- Raspberry Pi 腳本與程式設計
+
+- Linux 網路設定與 IP 管理
+
+- Reverse Proxy 與 Web 服務概念
+
+  *使用 NGINX 作為反向代理，統一前端與後端服務的存取入口，提升系統可管理性*
+
+- Linux 防火牆與安全概念
+
+- Client–Server 架構設計
+
+- API 設計與請求處理
+
+- 電子電路基礎與驅動模組應用
+
+  *理解 L298N 馬達驅動板與幫浦的接線方式，並處理電壓與電流需求*
+
 
 ## Framework 架構
 
