@@ -1,5 +1,5 @@
 # Drunk & Dangerous Friends🍻
-：I’m Shot Done！：（
+：我喝不 Shot 了！：（
 
 ## Concept Development 專案簡介
 
