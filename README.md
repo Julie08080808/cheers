@@ -45,7 +45,7 @@
 | 第四顆幫浦 | — | in3 | GPIO6 (Pin 31) |
 |  | — | in4 | GPIO5 (Pin 29) |
 
-## Existing Library/Software 遊戲列表與技術概覽
+## Existing Library/Software 技術概覽
 ## System Architecture Diagram 系統架構圖
 <img width="601" height="1326" alt="系統架構" src="https://github.com/user-attachments/assets/a13cf619-36a7-4094-a99f-fb181256f56d" />
 
