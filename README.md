@@ -208,7 +208,7 @@
 
 - Docker 包裝整個專案
 
-- pi 架構 Server ， 並控制硬體設備
+- pi 架構 Server 並控制硬體設備
 
 ## Installation 安裝
 
