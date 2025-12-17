@@ -47,7 +47,7 @@
 
 ## Existing Library/Software 技術概覽
 ## System Architecture Diagram 系統架構圖
-<img width="601" height="1326" alt="系統架構" src="https://github.com/user-attachments/assets/a13cf619-36a7-4094-a99f-fb181256f56d" />
+<img width="602" height="1169" alt="系統架構" src="https://github.com/user-attachments/assets/573f0fab-74ee-49c2-84d5-23cb1c38ae1e" />
 
 ## Functional Map 功能架構圖
 <img width="881" height="1641" alt="功能架構" src="https://github.com/user-attachments/assets/3768df74-1e26-452c-aee1-b596c8fa9a71" />
