@@ -46,10 +46,11 @@
 |  | — | in4 | GPIO5 (Pin 29) |
 
 ## Existing Library/Software 遊戲列表與技術概覽
+## 系統架構圖
+<img width="902" height="1844" alt="功能架構" src="https://github.com/user-attachments/assets/950bb796-d1e3-4992-bb9f-da825a7a8877" />
 
 ## Functional Map 功能架構圖
-
-<img width="902" height="1844" alt="功能架構" src="https://github.com/user-attachments/assets/950bb796-d1e3-4992-bb9f-da825a7a8877" />
+(待補)
 
 <!-- Which libraries do you use while you implement the project -->
 模式介紹
