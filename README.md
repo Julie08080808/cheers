@@ -212,25 +212,6 @@
 
 - Client–Server 架構設計
 
-## Framework 架構
-
-實體 & 網絡架構
-```text
-[ 玩家手機 1 ]  --\
-[ 玩家手機 2 ]     \
-[ 玩家手機 3 ]      \
-                     --> [ Wi-Fi AP / 手機熱點 ]
-                           |
-                           v
-          [ 樹莓派 (Game Server + 調酒 Controller) ]
-                           |
-                           v
-                 [ L298N / Relay 板 ]
-                           |
-                           v
-                 [ 多顆幫浦 + 酒桶 ]
-```
-
 ## Installation 安裝
 
 <!-- How do the user install with your project? -->
