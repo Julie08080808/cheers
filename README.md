@@ -208,7 +208,7 @@
 
 - Docker 包裝整個專案
 
-- Client–Server 架構設計
+- pi 架構 Server ， 並控制硬體設備
 
 ## Installation 安裝
 
@@ -272,7 +272,6 @@
 ## Acknowledgments 感謝名單
 
 - BlueT
-- 柏瑋學長
 - Reg 學長
 - Chat GPT
 - Gemini
