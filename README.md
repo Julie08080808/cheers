@@ -49,7 +49,10 @@
 ## Existing Library/Software 技術概覽
 - Docker (Docker compose、image)
 - GPIO
-- 
+- fastapi==0.115.5
+- uvicorn[standard]==0.32.1
+- pydantic==2.10.3
+- RPi.GPIO==0.7.1
 
 
 <!-- Which libraries do you use while you implement the project -->
@@ -83,7 +86,6 @@
 4.把自己加入docker群組 ```sudo usermod -aG docker $USER```
 5.git clone <<我的專案網頁>>
 6.匯入 Image，```docker load < pi4-party-game.tar```
-7.```cd final_project3```
 8.我們已經建立 image 了，所以直接啟動 image
 ```
 docker run -d \
@@ -190,7 +192,6 @@ final_project/
 
 ## Vision for the future 未來展望
 
-- 增強例外處理，如防止錯誤的人為操作。
 - 彈性酒單設計，你的酒單你做主。
 - 骰子小遊戲與規則豐富化，增加更多小遊戲。
 
