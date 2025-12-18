@@ -77,7 +77,25 @@
 - Docker 包裝整個專案
 
 ## Installation 安裝
-**需要連同一個網路**
+1.**需要連同一個網路**
+2.先 ssh 進入樹梅派，並做系統更新
+3.安裝 Docker ```curl -fsSL https://get.docker.com | sudo sh```
+4.把自己加入docker群組 ```sudo usermod -aG docker $USER```
+5.git clone <<我的專案網頁>>
+6.匯入 Image，```docker load < pi4-party-game.tar```
+7.```cd final_project3```
+8.我們已經建立 image 了，所以直接啟動 image
+```
+docker run -d \
+  --restart always \
+  --privileged \
+  -p 8000:8000 \
+  --name cheers-server \
+  pi4-cheers
+```
+9.確認有沒有跑起來```docker ps```
+10.用你的裝置打開瀏覽器，輸入 http://樹梅派 IP:8000
+
 教學初學者如何使用docker
 從安裝開始
 ㄗ再來如何匯入這個docker檔
